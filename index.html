@@ -236,7 +236,7 @@
                             <select id="dash-category" class="w-full custom-input rounded-xl px-4 py-3 text-white cursor-pointer">
                                 <option value="windows_executors">Windows Executors</option>
                                 <option value="mac_executors">Mac Executors</option>
-                                <option value="windows_externals">Windows Executors</option>
+                                <option value="windows_externals">Windows Externals</option>
                                 <option value="linux_executors">Linux Executors</option>
                             </select>
                         </div>
@@ -443,7 +443,6 @@
             });
             renderMainStatus();
             
-            // Verificare auto-login pentru conturi de tip Developer după încărcarea datelor
             if (!currentUser) {
                 checkSavedSession();
             }
@@ -456,23 +455,20 @@
         auth.onAuthStateChanged((user) => {
             if (user) {
                 currentUser = 'admin';
-                localStorage.setItem('cheat_today_user', 'admin'); // Salvează starea de Admin local
+                localStorage.setItem('cheat_today_user', 'admin');
                 updateNavbarUI();
                 setupDashboardView();
             }
         });
 
-        // Funcție dedicată pentru restaurarea automată a sesiunii stocate local
         function checkSavedSession() {
             const savedUser = localStorage.getItem('cheat_today_user');
             if (!savedUser) return;
 
             if (savedUser === 'admin') {
-                // Dacă e admin și Firebase s-a deconectat din memorie, re-autentificarea e gestionată de onAuthStateChanged sau necesită input, dar dacă token-ul e valid se reactivează automat
                 return;
             }
 
-            // Verificare validitate cont Developer salvat
             const savedPass = localStorage.getItem('cheat_today_pass');
             if (savedUser && savedPass) {
                 const matched = exploitsData.find(e => e.owner === savedUser && e.password === savedPass);
@@ -519,7 +515,6 @@
             renderSavedBg();
         }
 
-        /* CUSTOM BACKGROUND MEDIA LOADER */
         function handleBgUpload(input) {
             const file = input.files[0];
             if (!file) return;
@@ -599,9 +594,25 @@
                 { id: 'linux_executors', label: 'Linux Executors' }
             ];
 
+            // Define custom weight matrix values for automated priority rendering
+            const statusOrderWeights = {
+                'updated': 1,
+                'maintenance': 2,
+                'patching': 3,
+                'testing': 4,
+                'upcoming': 5
+            };
+
             structuralCategories.forEach(cat => {
-                const itemsInCat = exploitsData.filter(exp => (exp.category || 'windows_executors') === cat.id);
+                let itemsInCat = exploitsData.filter(exp => (exp.category || 'windows_executors') === cat.id);
                 if (itemsInCat.length === 0) return;
+
+                // Sort items natively inside category framework using custom structured weights
+                itemsInCat.sort((a, b) => {
+                    const weightA = statusOrderWeights[a.status] || 99;
+                    const weightB = statusOrderWeights[b.status] || 99;
+                    return weightA - weightB;
+                });
 
                 let catSectionHtml = `
                     <div class="space-y-4">
@@ -814,7 +825,7 @@
                 auth.signInWithEmailAndPassword(u, p)
                 .then(() => {
                     currentUser = 'admin';
-                    localStorage.setItem('cheat_today_user', 'admin'); // Salvează sesiunea de Admin
+                    localStorage.setItem('cheat_today_user', 'admin');
                     updateNavbarUI();
                     setupDashboardView();
                     switchView('dashboard');
@@ -827,8 +838,8 @@
                 const matched = exploitsData.find(e => e.owner === u && e.password === p);
                 if (matched) {
                     currentUser = u;
-                    localStorage.setItem('cheat_today_user', u); // Salvează utilizatorul local
-                    localStorage.setItem('cheat_today_pass', p); // Salvează parola local pentru auto-login dev
+                    localStorage.setItem('cheat_today_user', u);
+                    localStorage.setItem('cheat_today_pass', p);
                     updateNavbarUI();
                     setupDashboardView();
                     switchView('dashboard');
@@ -841,8 +852,8 @@
         function logout() {
             const clearSessionData = () => {
                 currentUser = null;
-                localStorage.removeItem('cheat_today_user'); // Șterge user-ul din stocarea locală la deconectare
-                localStorage.removeItem('cheat_today_pass'); // Șterge parola stocată la deconectare
+                localStorage.removeItem('cheat_today_user');
+                localStorage.removeItem('cheat_today_pass');
                 document.getElementById('username').value = '';
                 document.getElementById('password').value = '';
                 updateNavbarUI();
