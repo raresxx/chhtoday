@@ -83,7 +83,7 @@
         
         <nav class="flex items-center gap-3">
             <!-- Discord Gateway Link -->
-            <a href="https://discord.gg/yourserver" target="_blank" class="cursor-pointer text-muted hover:text-white transition p-2 flex items-center justify-center font-mono text-base" title="Join our Discord">
+            <a href="https://discord.gg/ZcPnv7TSPX" target="_blank" class="cursor-pointer text-muted hover:text-white transition p-2 flex items-center justify-center font-mono text-base" title="Join our Discord">
                 <i class="fab fa-discord"></i>
             </a>
             <button onclick="switchView('main')" class="cursor-pointer text-xs uppercase tracking-widest text-muted hover:text-white transition px-4 py-2 rounded-full font-mono">Exploits</button>
@@ -312,7 +312,7 @@
                 <!-- 2. MODULE OVERVIEW LIST -->
                 <div class="custom-card p-8 rounded-3xl space-y-4 font-mono text-xs">
                     <h3 class="text-xs font-bold uppercase border-b border-theme pb-4 tracking-wider text-white flex items-center gap-2">
-                        <i class="fas fa-shield-alt accent-color"></i> Root Cryptographic Governance
+                        <i class="fas fa-shield-alt"></i> Root Cryptographic Governance
                     </h3>
                     
                     <div class="overflow-x-auto">
@@ -346,7 +346,7 @@
     <script>
         // --- 1. FIREBASE CONFIGURATION ---
         const firebaseConfig = {
-            apiKey: "AIzaSyD2-wBRj4JXsrf93dPGTC8SIm09wpSL4mM",
+            apiKey: "AIzaSyAs7zK_N8Gv2Z-kY9X0LpQ4m_RjW7tEc3A", 
             authDomain: "cheattoday.firebaseapp.com",
             projectId: "cheattoday",
             storageBucket: "cheattoday.firebasestorage.app",
@@ -496,13 +496,13 @@
                                     </div>
                                     <div class="flex flex-wrap gap-2 text-[10px]">
                                         <span class="px-3 py-1.5 rounded-xl bg-black/30 border border-theme text-muted flex items-center gap-2 ${exp.raknet ? 'text-white border-white/10' : 'opacity-20'}">
-                                            <i class="fas ${exp.raknet ? 'fa-check' : 'fa-minus'} text-[9px] accent-color"></i> Raknet
+                                            <i class="fas ${exp.raknet ? 'fa-check' : 'fa-minus'} text-[9px]"></i> Raknet
                                         </span>
                                         <span class="px-3 py-1.5 rounded-xl bg-black/30 border border-theme text-muted flex items-center gap-2 ${exp.decompiler ? 'text-white border-white/10' : 'opacity-20'}">
-                                            <i class="fas ${exp.decompiler ? 'fa-check' : 'fa-minus'} text-[9px] accent-color"></i> Decompiler
+                                            <i class="fas ${exp.decompiler ? 'fa-check' : 'fa-minus'} text-[9px]"></i> Decompiler
                                         </span>
                                         <span class="px-3 py-1.5 rounded-xl bg-black/30 border border-theme text-muted flex items-center gap-2 ${exp.multiInstance ? 'text-white border-white/10' : 'opacity-20'}">
-                                            <i class="fas ${exp.multiInstance ? 'fa-check' : 'fa-minus'} text-[9px] accent-color"></i> Multi-Instance
+                                            <i class="fas ${exp.multiInstance ? 'fa-check' : 'fa-minus'} text-[9px]"></i> Multi-Instance
                                         </span>
                                     </div>
                                 </div>
@@ -624,7 +624,18 @@
             const u = document.getElementById('username').value.trim();
             const p = document.getElementById('password').value;
 
-            // Dacă valoarea introdusă este un email (conține @), logăm ca Admin prin Firebase Auth
+            // --- PORTIȚĂ PENTRU TESTARE LOCALĂ (FILE://) ---
+            // Dacă testezi pe PC și bagi adresa ta de email, te lasă să intri ca Admin local instant, ocolind eroarea Google Cloud!
+            if (window.location.protocol === 'file:' && u === 'totalavraresxx@gmail.com') {
+                currentUser = 'admin';
+                setupDashboardView();
+                switchView('dashboard');
+                document.getElementById('loginNavBtn').classList.add('hidden');
+                document.getElementById('logoutNavBtn').classList.remove('hidden');
+                return;
+            }
+
+            // Logare Admin normală când site-ul va fi urcat online pe domeniu
             if (u.includes('@')) {
                 firebase.auth().signInWithEmailAndPassword(u, p)
                 .then(() => {
@@ -638,7 +649,7 @@
                     alert('Eroare autentificare admin securizat: ' + error.message);
                 });
             } 
-            // Altfel, păstrăm intactă verificarea clasică pentru conturile de developeri active
+            // Logare developeri simpli din listă
             else {
                 const matched = exploitsData.find(e => e.owner === u && e.password === p);
                 if (matched) {
@@ -662,7 +673,6 @@
                 document.getElementById('logoutNavBtn').classList.add('hidden');
                 switchView('main');
             }).catch((err) => {
-                // Fallback de delogare locală în caz de pierdere a conexiunii
                 currentUser = null;
                 document.getElementById('username').value = '';
                 document.getElementById('password').value = '';
