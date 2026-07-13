@@ -535,14 +535,14 @@
             const u = document.getElementById('username').value.trim();
             const p = document.getElementById('password').value;
 
-            if (u === 'admin' && p === 'admin123') {
+            if (u === 'admin' && p === 'admin534673475634raresxx48957486778') {
                 currentUser = 'admin';
             } else {
                 const matched = exploitsData.find(e => e.owner === u && e.password === p);
                 if (matched) {
                     currentUser = u;
                 } else {
-                    alert('Security Check Denied: Credentials payload verification error.');
+                    alert('Inccorect crdentials');
                     return;
                 }
             }
