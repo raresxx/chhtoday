@@ -97,7 +97,11 @@
                 <i class="fab fa-discord"></i>
             </a>
             <button onclick="switchView('main')" class="cursor-pointer text-xs uppercase tracking-widest text-muted hover:text-white transition px-4 py-2 rounded-full font-mono">Exploits</button>
-            <button onclick="switchView('login')" id="loginNavBtn" class="cursor-pointer text-xs uppercase tracking-widest bg-white text-black font-bold px-5 py-2 rounded-full hover:bg-neutral-200 transition font-mono shadow-sm">Dashboard</button>
+            
+            <!-- Buton Dashboard inteligent (Redirecționează corect sau deschide Login) -->
+            <button onclick="handleDashboardNav()" id="loginNavBtn" class="cursor-pointer text-xs uppercase tracking-widest bg-white text-black font-bold px-5 py-2 rounded-full hover:bg-neutral-200 transition font-mono shadow-sm">Dashboard</button>
+            
+            <!-- Buton Sign Out (Apare dinamic doar când ești autentificat) -->
             <button onclick="logout()" id="logoutNavBtn" class="hidden cursor-pointer text-xs uppercase tracking-widest bg-neutral-900/80 border border-neutral-800 text-red-400 px-5 py-2 rounded-full hover:bg-red-950/30 transition font-mono">Sign Out</button>
         </nav>
     </header>
@@ -413,9 +417,8 @@
         auth.onAuthStateChanged((user) => {
             if (user) {
                 currentUser = 'admin';
+                updateNavbarUI();
                 setupDashboardView();
-                document.getElementById('loginNavBtn').classList.add('hidden');
-                document.getElementById('logoutNavBtn').classList.remove('hidden');
             }
         });
 
@@ -664,6 +667,31 @@
             document.getElementById('view-' + viewId).classList.remove('hidden');
         }
 
+        // CONTROL INTELIGENT PENTRU NAVIGARE ȘI REINTRARE ÎN DASHBOARD
+        function handleDashboardNav() {
+            if (currentUser) {
+                switchView('dashboard');
+            } else {
+                switchView('login');
+            }
+        }
+
+        // ACTUALIZARE STRUCTURĂ ȘI STILURI NAVBAR BAZATE PE SESIUNE
+        function updateNavbarUI() {
+            const loginBtn = document.getElementById('loginNavBtn');
+            const logoutBtn = document.getElementById('logoutNavBtn');
+
+            if (currentUser) {
+                // Utilizator logat -> Dashboard devine link text simplu, apare butonul de Sign Out
+                loginBtn.className = "cursor-pointer text-xs uppercase tracking-widest text-muted hover:text-white transition px-4 py-2 rounded-full font-mono";
+                logoutBtn.classList.remove('hidden');
+            } else {
+                // Utilizator delogat -> Revine la starea curată de buton alb proeminent în dreapta
+                loginBtn.className = "cursor-pointer text-xs uppercase tracking-widest bg-white text-black font-bold px-5 py-2 rounded-full hover:bg-neutral-200 transition font-mono shadow-sm";
+                logoutBtn.classList.add('hidden');
+            }
+        }
+
         function handleLogin() {
             const u = document.getElementById('username').value.trim();
             const p = document.getElementById('password').value;
@@ -672,10 +700,9 @@
                 auth.signInWithEmailAndPassword(u, p)
                 .then(() => {
                     currentUser = 'admin';
+                    updateNavbarUI();
                     setupDashboardView();
                     switchView('dashboard');
-                    document.getElementById('loginNavBtn').classList.add('hidden');
-                    document.getElementById('logoutNavBtn').classList.remove('hidden');
                 })
                 .catch((error) => {
                     alert('EROARE: ' + error.message);
@@ -685,10 +712,9 @@
                 const matched = exploitsData.find(e => e.owner === u && e.password === p);
                 if (matched) {
                     currentUser = u;
+                    updateNavbarUI();
                     setupDashboardView();
                     switchView('dashboard');
-                    document.getElementById('loginNavBtn').classList.add('hidden');
-                    document.getElementById('logoutNavBtn').classList.remove('hidden');
                 } else {
                     alert('Incorrect developer credentials.');
                 }
@@ -696,14 +722,19 @@
         }
 
         function logout() {
-            auth.signOut().then(() => {
+            const clearSessionData = () => {
                 currentUser = null;
                 document.getElementById('username').value = '';
                 document.getElementById('password').value = '';
-                document.getElementById('loginNavBtn').classList.remove('hidden');
-                document.getElementById('logoutNavBtn').classList.add('hidden');
+                updateNavbarUI();
                 switchView('main');
-            });
+            };
+
+            if (auth.currentUser) {
+                auth.signOut().then(clearSessionData);
+            } else {
+                clearSessionData();
+            }
         }
 
         function setupDashboardView() {
