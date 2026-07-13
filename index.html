@@ -29,6 +29,24 @@
             color: var(--text-main);
             font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             transition: background-color 0.4s ease, color 0.4s ease;
+            position: relative;
+        }
+
+        /* Ambient Background Layers */
+        #custom-bg-image {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; z-index: -2; display: none;
+        }
+        #custom-bg-video {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; z-index: -2; display: none;
+        }
+        #bg-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4); z-index: -1; display: none;
         }
 
         .custom-card {
@@ -77,6 +95,11 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-neutral-800 selection:text-white">
 
+    <!-- BACKGROUND NODES -->
+    <img id="custom-bg-image" alt="Background Grid">
+    <video id="custom-bg-video" autoplay loop muted playsinline></video>
+    <div id="bg-overlay"></div>
+
     <!-- NAVBAR -->
     <header class="border-b border-theme px-8 py-5 flex justify-between items-center bg-black/20 backdrop-blur-xl sticky top-0 z-50">
         <div class="flex items-center gap-6">
@@ -88,7 +111,17 @@
                 <button onclick="toggleThemeDropdown()" class="cursor-pointer text-xs uppercase tracking-widest text-muted hover:text-white transition flex items-center gap-2 font-mono bg-neutral-900/40 px-3 py-1.5 rounded-full border border-theme">
                     <i class="fas fa-palette text-[11px] accent-color"></i> Appearance <i class="fas fa-chevron-down text-[9px] opacity-60"></i>
                 </button>
-                <div id="theme-dropdown" class="hidden absolute left-0 mt-3 w-56 bg-neutral-950 border border-neutral-800 rounded-2xl shadow-2xl py-2 z-50 font-mono text-xs overflow-hidden"></div>
+                <div id="theme-dropdown" class="hidden absolute left-0 mt-3 w-56 bg-neutral-950 border border-neutral-800 rounded-2xl shadow-2xl py-2 z-50 font-mono text-xs overflow-hidden">
+                    <div id="themes-box"></div>
+                    <div class="border-t border-neutral-900 px-4 py-3 bg-neutral-900/20 space-y-2">
+                        <span class="text-[10px] uppercase font-bold text-neutral-500 tracking-wider block">Custom Wallpaper</span>
+                        <label class="w-full border border-dashed border-neutral-800 hover:border-neutral-700 bg-black/40 text-neutral-400 hover:text-white transition py-2 px-3 rounded-xl flex items-center justify-center gap-2 cursor-pointer text-[10px] uppercase tracking-wide">
+                            <i class="fas fa-upload opacity-60"></i> Choose File
+                            <input type="file" id="bg-upload-input" accept="image/png, image/jpeg, image/jpg, image/gif, video/mp4" class="hidden" onchange="handleBgUpload(this)">
+                        </label>
+                        <button id="reset-bg-btn" onclick="clearCustomBg()" class="hidden w-full text-center py-1.5 rounded-lg text-red-400 hover:bg-red-950/20 transition text-[9px] uppercase tracking-wider font-bold">Remove Wall</button>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -464,7 +497,6 @@
             root.style.setProperty('--accent', t.accent);
             root.style.setProperty('--accent-rgb', t.rgb);
             localStorage.setItem('cheat_today_theme_idx', index);
-            document.getElementById('theme-dropdown').classList.add('hidden');
         }
 
         function toggleThemeDropdown() {
@@ -472,15 +504,75 @@
         }
 
         function buildThemeSelector() {
-            const container = document.getElementById('theme-dropdown');
+            const container = document.getElementById('themes-box');
             container.innerHTML = '';
             themesList.forEach((t, index) => {
                 const btn = document.createElement('button');
                 btn.className = "w-full text-left px-4 py-2.5 hover:bg-white/5 transition flex items-center justify-between cursor-pointer text-neutral-400 hover:text-white border-b border-neutral-900/40 last:border-none";
-                btn.onclick = () => setTheme(index);
+                btn.onclick = () => {
+                    setTheme(index);
+                    document.getElementById('theme-dropdown').classList.add('hidden');
+                };
                 btn.innerHTML = `<span>${t.name}</span><span class="w-2.5 h-2.5 rounded-full" style="background-color: ${t.accent}"></span>`;
                 container.appendChild(btn);
             });
+            renderSavedBg();
+        }
+
+        /* CUSTOM BACKGROUND MEDIA LOADER */
+        function handleBgUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Data = e.target.result;
+                localStorage.setItem('custom_bg_data', base64Data);
+                localStorage.setItem('custom_bg_type', file.type);
+                renderSavedBg();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function renderSavedBg() {
+            const bgData = localStorage.getItem('custom_bg_data');
+            const bgType = localStorage.getItem('custom_bg_type');
+            
+            const imgEl = document.getElementById('custom-bg-image');
+            const vidEl = document.getElementById('custom-bg-video');
+            const overlayEl = document.getElementById('bg-overlay');
+            const resetBtn = document.getElementById('reset-bg-btn');
+
+            if (bgData && bgType) {
+                resetBtn.classList.remove('hidden');
+                overlayEl.style.display = 'block';
+
+                if (bgType.includes('video')) {
+                    imgEl.style.display = 'none';
+                    imgEl.src = '';
+                    vidEl.src = bgData;
+                    vidEl.style.display = 'block';
+                } else {
+                    vidEl.style.display = 'none';
+                    vidEl.src = '';
+                    imgEl.src = bgData;
+                    imgEl.style.display = 'block';
+                }
+            } else {
+                resetBtn.classList.add('hidden');
+                imgEl.style.display = 'none';
+                vidEl.style.display = 'none';
+                overlayEl.style.display = 'none';
+                imgEl.src = '';
+                vidEl.src = '';
+            }
+        }
+
+        function clearCustomBg() {
+            localStorage.removeItem('custom_bg_data');
+            localStorage.removeItem('custom_bg_type');
+            renderSavedBg();
+            document.getElementById('theme-dropdown').classList.add('hidden');
         }
 
         function toggleCardDropdown(id) {
