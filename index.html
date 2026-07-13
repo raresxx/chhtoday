@@ -7,7 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- FIREBASE CORE SDKS (COMPAT MODE FOR EASY SINGLE FILE INTEGRATION) -->
+    <!-- FIREBASE CORE SDKS (COMPAT MODE) -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -82,8 +82,7 @@
         </div>
         
         <nav class="flex items-center gap-3">
-            <!-- Discord Gateway Link -->
-            <a href="https://discord.gg/ZcPnv7TSPX" target="_blank" class="cursor-pointer text-muted hover:text-white transition p-2 flex items-center justify-center font-mono text-base" title="Join our Discord">
+            <a href="https://discord.gg/yourserver" target="_blank" class="cursor-pointer text-muted hover:text-white transition p-2 flex items-center justify-center font-mono text-base" title="Join our Discord">
                 <i class="fab fa-discord"></i>
             </a>
             <button onclick="switchView('main')" class="cursor-pointer text-xs uppercase tracking-widest text-muted hover:text-white transition px-4 py-2 rounded-full font-mono">Exploits</button>
@@ -102,9 +101,8 @@
                 <p class="text-sm text-muted max-w-xl">Live Monitoring for exploits.</p>
             </div>
 
-            <!-- Holder for Categorized Content Grid Blocks -->
             <div id="exploits-container" class="space-y-12">
-                <!-- Syncing dynamically with Firebase live categories streams -->
+                <!-- Syncing dynamically with Firebase -->
             </div>
         </section>
 
@@ -116,12 +114,12 @@
                         <i class="fas fa-lock text-sm text-white"></i>
                     </div>
                     <h2 class="text-base font-bold uppercase tracking-wider font-mono pt-2">Account Login</h2>
-                    <p class="text-xs text-muted">Provide your username and password to enter the dashboard.</p>
+                    <p class="text-xs text-muted">Provide your credentials to enter the dashboard.</p>
                 </div>
                 <div class="space-y-5 font-mono text-xs">
                     <div class="space-y-2">
-                        <label class="block text-muted uppercase tracking-wider text-[10px]">Username</label>
-                        <input type="text" id="username" class="w-full custom-input rounded-xl px-4 py-3 text-white" placeholder="RaresXx">
+                        <label class="block text-muted uppercase tracking-wider text-[10px]">Username / Email</label>
+                        <input type="text" id="username" class="w-full custom-input rounded-xl px-4 py-3 text-white" placeholder="admin@cheat.today">
                     </div>
                     <div class="space-y-2">
                         <label class="block text-muted uppercase tracking-wider text-[10px]">Password</label>
@@ -167,7 +165,7 @@
                             </select>
                         </div>
                         <div class="space-y-2">
-                            <label class="text-muted uppercase text-[10px] tracking-wide">Category Category</label>
+                            <label class="text-muted uppercase text-[10px] tracking-wide">Category</label>
                             <select id="dash-category" class="w-full custom-input rounded-xl px-4 py-3 text-white cursor-pointer">
                                 <option value="windows_executors">Windows Executors</option>
                                 <option value="mac_executors">Mac Executors</option>
@@ -204,17 +202,16 @@
                         <div class="flex items-center justify-between bg-black/30 p-4 rounded-2xl border border-theme">
                             <div>
                                 <span class="block font-bold text-white text-[11px]">Keyless</span>
-                                <span class="text-[10px] text-muted">Assign if the exploits is keyless. if not, leave it blank.</span>
+                                <span class="text-[10px] text-muted">Assign if the exploit is keyless.</span>
                             </div>
                             <input type="checkbox" id="dash-keyless" class="accent-bg bg-neutral-900 border-none rounded w-5 h-5 cursor-pointer">
                         </div>
                     </div>
                 </div>
 
-                <!-- Custom Exploit Note Integration -->
                 <div class="space-y-2 pt-2">
                     <label class="text-muted uppercase text-[10px] tracking-wide">Exploit Custom Note (Appears on Main Card)</label>
-                    <input type="text" id="dash-note" class="w-full custom-input rounded-xl px-4 py-3 text-white" placeholder="Leave blank to remove the custom note banner">
+                    <input type="text" id="dash-note" class="w-full custom-input rounded-xl px-4 py-3 text-white" placeholder="Leave blank to remove note banner">
                 </div>
 
                 <div class="flex justify-end pt-5 border-t border-theme">
@@ -224,16 +221,13 @@
 
             <!-- ADMIN CENTRAL WORKSPACE -->
             <div id="admin-panel" class="hidden space-y-6">
-                
                 <!-- 1. CREATION FORM -->
                 <div class="custom-card p-8 rounded-3xl space-y-6 font-mono text-xs border-dashed border-neutral-700">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2">
                         <i class="fas fa-plus-circle text-emerald-400"></i> Register New Module Node
                     </h3>
-                    <p class="text-[11px] text-muted -mt-3">Instantiate a brand new cloud system deployment and provision dedicated login credentials.</p>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-                        <!-- Left Creation Col -->
                         <div class="space-y-4">
                             <div class="space-y-1.5">
                                 <label class="text-muted uppercase text-[10px]">New Module Name</label>
@@ -278,7 +272,6 @@
                             </div>
                         </div>
 
-                        <!-- Right Creation Col -->
                         <div class="space-y-4">
                             <div class="space-y-1.5">
                                 <label class="text-muted uppercase text-[10px]">Target Link (Website)</label>
@@ -298,21 +291,20 @@
                         </div>
                     </div>
                     
-                    <!-- Admin Node Creation Note -->
                     <div class="space-y-1.5">
                         <label class="text-muted uppercase text-[10px]">Initial Custom Note (Optional)</label>
-                        <input type="text" id="create-note" class="w-full custom-input rounded-xl px-4 py-3 text-white" placeholder="Add custom card note directly on creation">
+                        <input type="text" id="create-note" class="w-full custom-input rounded-xl px-4 py-3 text-white" placeholder="Add custom card note">
                     </div>
 
                     <div class="flex justify-end pt-2">
-                        <button onclick="createNewExploit()" class="cursor-pointer bg-emerald-500 hover:bg-emerald-600 text-black font-bold px-8 py-3 rounded-xl transition text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/10">Deploy Module Node</button>
+                        <button onclick="createNewExploit()" class="cursor-pointer bg-emerald-500 hover:bg-emerald-600 text-black font-bold px-8 py-3 rounded-xl transition text-xs uppercase tracking-wider">Deploy Module Node</button>
                     </div>
                 </div>
 
                 <!-- 2. MODULE OVERVIEW LIST -->
                 <div class="custom-card p-8 rounded-3xl space-y-4 font-mono text-xs">
                     <h3 class="text-xs font-bold uppercase border-b border-theme pb-4 tracking-wider text-white flex items-center gap-2">
-                        <i class="fas fa-shield-alt"></i> Root Cryptographic Governance
+                        <i class="fas fa-shield-alt"></i> Root Governance
                     </h3>
                     
                     <div class="overflow-x-auto">
@@ -331,33 +323,30 @@
                         </table>
                     </div>
                 </div>
-
             </div>
         </section>
-
     </main>
 
     <!-- FOOTER -->
     <footer class="border-t border-theme text-center py-8 text-[11px] text-muted font-mono tracking-widest uppercase">
-        &copy; 2026 <span class="text-neutral-400">cheat.today</span> &mdash; Live exploit status
+        &copy; 2026 <span class="text-neutral-400">cheat.today</span>
     </footer>
 
     <!-- ENGINE CODE CORE -->
     <script>
-        // --- 1. FIREBASE CONFIGURATION ---
+        // --- 1. CONFIGURARE COMPLETĂ FIREBASE ---
         const firebaseConfig = {
             apiKey: "AIzaSyAs7zK_N8Gv2Z-kY9X0LpQ4m_RjW7tEc3A", 
             authDomain: "cheattoday.firebaseapp.com",
             projectId: "cheattoday",
             storageBucket: "cheattoday.firebasestorage.app",
             messagingSenderId: "93317930573",
-            appId: "1:93317930573:web:eedc193d8c546f7beb50c4",
-            measurementId: "G-WCF3TSWFLK"
+            appId: "1:93317930573:web:eedc193d8c546f7beb50c4"
         };
 
-        // Initialize Firebase Setup
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        const auth = firebase.auth();
 
         const themesList = [
             { name: "Noir Absolute", main: "#050505", card: "#0b0b0c", input: "#111113", border: "#1c1c1f", text: "#ffffff", muted: "#71717a", accent: "#ffffff", rgb: "255,255,255" },
@@ -371,33 +360,27 @@
         let currentUser = null;
         let currentEditingExploitId = null;
 
-        // --- 2. FIREBASE REAL-TIME SYNC PIPELINE ---
+        // Sync date în timp real
         db.collection("exploits").onSnapshot((snapshot) => {
             exploitsData = [];
             snapshot.forEach((doc) => {
                 exploitsData.push({ id: doc.id, ...doc.data() });
             });
-            
-            if (exploitsData.length === 0) {
-                seedInitialData();
-            } else {
-                renderMainStatus();
-                if (currentUser === 'admin') {
-                    renderAdminTable();
-                }
+            renderMainStatus();
+            if (currentUser === 'admin') {
+                renderAdminTable();
             }
         });
 
-        function seedInitialData() {
-            const defaults = [
-                { name: "Lunar", status: "updated", category: "windows_executors", raknet: true, decompiler: true, multiInstance: false, keyless: false, website: "https://lunar.cheat.today", discord: "https://discord.gg/lunar", certified: true, owner: "lunar_dev", password: "elasticNora666:bloxgen.netFRF", note: "" },
-                { name: "Project Vyrix", status: "upcoming", category: "windows_executors", raknet: true, decompiler: true, multiInstance: true, keyless: true, website: "https://vyrix.cheat.today", discord: "https://discord.gg/vyrix", certified: false, owner: "vyrix_dev", password: "", note: "" }
-            ];
-            defaults.forEach(exp => {
-                const customId = exp.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
-                db.collection("exploits").doc(customId).set(exp);
-            });
-        }
+        // Păstrare sesiune la refresh dacă e logat prin Firebase Auth
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = 'admin';
+                setupDashboardView();
+                document.getElementById('loginNavBtn').classList.add('hidden');
+                document.getElementById('logoutNavBtn').classList.remove('hidden');
+            }
+        });
 
         function setTheme(index) {
             const t = themesList[index];
@@ -443,11 +426,7 @@
             ];
 
             structuralCategories.forEach(cat => {
-                const itemsInCat = exploitsData.filter(exp => {
-                    const currentCat = exp.category || 'windows_executors';
-                    return currentCat === cat.id;
-                });
-
+                const itemsInCat = exploitsData.filter(exp => (exp.category || 'windows_executors') === cat.id);
                 if (itemsInCat.length === 0) return;
 
                 let catSectionHtml = `
@@ -549,12 +528,7 @@
             const note = document.getElementById('create-note').value.trim();
 
             if(!name || !owner || !password) {
-                alert("Creation Fault: Module Name, Developer Username, and Password fields are mandatory.");
-                return;
-            }
-
-            if(owner.toLowerCase() === 'admin' || exploitsData.some(e => e.owner.toLowerCase() === owner.toLowerCase())) {
-                alert("Creation Fault: Developer Account Identifier already allocated to another active node process.");
+                alert("Missing required fields.");
                 return;
             }
 
@@ -577,34 +551,15 @@
             };
 
             db.collection("exploits").doc(newId).set(newExploit).then(() => {
-                alert(`Cluster Deploy: Module Node [${name}] is now live for everyone!`);
+                alert(`Deployed [${name}] successfully.`);
                 document.getElementById('create-name').value = '';
-                document.getElementById('create-raknet').checked = false;
-                document.getElementById('create-decompiler').checked = false;
-                document.getElementById('create-multi').checked = false;
-                document.getElementById('create-keyless').checked = false;
-                document.getElementById('create-web').value = '';
-                document.getElementById('create-discord').value = '';
-                document.getElementById('create-owner').value = '';
-                document.getElementById('create-password').value = '';
-                document.getElementById('create-note').value = '';
-            }).catch(err => alert("Error writing to cloud database: " + err));
+            });
         }
 
         function deleteExploit(id, name) {
-            if(currentUser !== 'admin') {
-                alert("Unauthorized: Root privileges missing.");
-                return;
-            }
-
-            if(confirm(`Are you absolutely sure you want to completely PURGE [${name}] from the Cloud Cluster registry?`)) {
-                db.collection("exploits").doc(id).delete().then(() => {
-                    alert(`Node [${name}] successfully purged from network registry.`);
-                    if (currentEditingExploitId === id) {
-                        currentEditingExploitId = null;
-                        document.getElementById('dash-name').value = '';
-                    }
-                }).catch(err => alert("Purge Error: " + err));
+            if(currentUser !== 'admin') return;
+            if(confirm(`Purge [${name}]?`)) {
+                db.collection("exploits").doc(id).delete();
             }
         }
 
@@ -612,7 +567,6 @@
             document.getElementById('view-main').classList.add('hidden');
             document.getElementById('view-login').classList.add('hidden');
             document.getElementById('view-dashboard').classList.add('hidden');
-
             if(viewId === 'dashboard' && !currentUser) {
                 document.getElementById('view-login').classList.remove('hidden');
                 return;
@@ -620,24 +574,13 @@
             document.getElementById('view-' + viewId).classList.remove('hidden');
         }
 
+        // --- LOGIN SECURITY GATEWAY ---
         function handleLogin() {
             const u = document.getElementById('username').value.trim();
             const p = document.getElementById('password').value;
 
-            // --- PORTIȚĂ PENTRU TESTARE LOCALĂ (FILE://) ---
-            // Dacă testezi pe PC și bagi adresa ta de email, te lasă să intri ca Admin local instant, ocolind eroarea Google Cloud!
-            if (window.location.protocol === 'file:' && u === 'totalavraresxx@gmail.com') {
-                currentUser = 'admin';
-                setupDashboardView();
-                switchView('dashboard');
-                document.getElementById('loginNavBtn').classList.add('hidden');
-                document.getElementById('logoutNavBtn').classList.remove('hidden');
-                return;
-            }
-
-            // Logare Admin normală când site-ul va fi urcat online pe domeniu
             if (u.includes('@')) {
-                firebase.auth().signInWithEmailAndPassword(u, p)
+                auth.signInWithEmailAndPassword(u, p)
                 .then(() => {
                     currentUser = 'admin';
                     setupDashboardView();
@@ -646,10 +589,10 @@
                     document.getElementById('logoutNavBtn').classList.remove('hidden');
                 })
                 .catch((error) => {
-                    alert('Eroare autentificare admin securizat: ' + error.message);
+                    // Îți sare pop-up pe ecran cu eroarea exactă trimisă de Firebase
+                    alert('EROARE FIREBASE CORE: [' + error.code + '] -> ' + error.message);
                 });
             } 
-            // Logare developeri simpli din listă
             else {
                 const matched = exploitsData.find(e => e.owner === u && e.password === p);
                 if (matched) {
@@ -659,20 +602,13 @@
                     document.getElementById('loginNavBtn').classList.add('hidden');
                     document.getElementById('logoutNavBtn').classList.remove('hidden');
                 } else {
-                    alert('Incorrect credentials');
+                    alert('Incorrect developer credentials (Firestore Node Local Match Failed)');
                 }
             }
         }
 
         function logout() {
-            firebase.auth().signOut().then(() => {
-                currentUser = null;
-                document.getElementById('username').value = '';
-                document.getElementById('password').value = '';
-                document.getElementById('loginNavBtn').classList.remove('hidden');
-                document.getElementById('logoutNavBtn').classList.add('hidden');
-                switchView('main');
-            }).catch((err) => {
+            auth.signOut().then(() => {
                 currentUser = null;
                 document.getElementById('username').value = '';
                 document.getElementById('password').value = '';
@@ -683,7 +619,7 @@
         }
 
         function setupDashboardView() {
-            document.getElementById('user-display').innerText = currentUser === 'admin' ? 'Root Administrator (You)' : currentUser;
+            document.getElementById('user-display').innerText = currentUser === 'admin' ? 'Root Administrator' : currentUser;
             const badge = document.getElementById('badge-role');
             const adminPanel = document.getElementById('admin-panel');
 
@@ -718,9 +654,6 @@
 
         function saveDevChanges() {
             if(!currentEditingExploitId) return;
-            const exp = exploitsData.find(e => e.id === currentEditingExploitId);
-            if(!exp) return;
-
             const updatedData = {
                 status: document.getElementById('dash-status').value,
                 category: document.getElementById('dash-category').value,
@@ -732,33 +665,25 @@
                 keyless: document.getElementById('dash-keyless').checked,
                 note: document.getElementById('dash-note').value.trim()
             };
-
             db.collection("exploits").doc(currentEditingExploitId).update(updatedData).then(() => {
-                alert(`Cluster cloud node [${exp.name}] updated globally!`);
+                alert(`Node updated globally!`);
             });
         }
 
         function renderAdminTable() {
             const tbody = document.getElementById('admin-table-body');
             tbody.innerHTML = '';
-
             exploitsData.forEach(exp => {
                 const certBtn = exp.certified ? 
-                    `<button onclick="toggleCertificate('${exp.id}')" class="cursor-pointer text-[10px] bg-red-950/40 text-red-400 border border-red-900/40 px-2.5 py-1.5 rounded-xl hover:bg-red-900 hover:text-white transition font-mono">Revoke Cert</button>` :
-                    `<button onclick="toggleCertificate('${exp.id}')" class="cursor-pointer text-[10px] bg-white text-black font-bold px-2.5 py-1.5 rounded-xl hover:bg-neutral-200 transition font-mono shadow-sm">Give Cert</button>`;
-
-                const deleteBtn = `<button onclick="deleteExploit('${exp.id}', '${exp.name}')" class="cursor-pointer text-[10px] bg-neutral-900 hover:bg-red-950/60 border border-neutral-800 hover:border-red-900/50 text-neutral-400 hover:text-red-400 px-2.5 py-1.5 rounded-xl transition font-mono"><i class="fas fa-trash-alt"></i> Purge</button>`;
-
-                const currentCatLabel = exp.category === 'mac_executors' ? 'Mac Exec' : 
-                                        exp.category === 'windows_externals' ? 'Win Ext' : 
-                                        exp.category === 'linux_executors' ? 'Linux Exec' : 'Win Exec';
+                    `<button onclick="toggleCertificate('${exp.id}')" class="cursor-pointer text-[10px] bg-red-950/40 text-red-400 border border-red-900/40 px-2.5 py-1.5 rounded-xl hover:bg-red-900 font-mono">Revoke</button>` :
+                    `<button onclick="toggleCertificate('${exp.id}')" class="cursor-pointer text-[10px] bg-white text-black font-bold px-2.5 py-1.5 rounded-xl hover:bg-neutral-200 font-mono">Certify</button>`;
 
                 const tr = `
                     <tr class="hover:bg-white/5 transition text-neutral-300">
-                        <td onclick="loadExploitIntoDevForm('${exp.id}')" class="py-4 font-bold text-white cursor-pointer hover:underline">${exp.name} <i class="fas fa-edit text-[9px] text-muted ml-1"></i></td>
-                        <td class="py-4 text-muted text-[11px] font-mono">${exp.owner}</td>
-                        <td class="py-4 uppercase text-[10px] tracking-wider font-mono">${exp.status} <span class="text-[9px] text-muted-400 opacity-50 block font-normal lowercase">(${currentCatLabel})</span></td>
-                        <td class="py-4 text-right flex justify-end gap-2">${certBtn} ${deleteBtn}</td>
+                        <td onclick="loadExploitIntoDevForm('${exp.id}')" class="py-4 font-bold text-white cursor-pointer hover:underline">${exp.name}</td>
+                        <td class="py-4 text-muted font-mono">${exp.owner}</td>
+                        <td class="py-4 uppercase text-[10px] font-mono">${exp.status}</td>
+                        <td class="py-4 text-right flex justify-end gap-2">${certBtn} <button onclick="deleteExploit('${exp.id}', '${exp.name}')" class="text-neutral-400 hover:text-red-400 px-2.5 py-1.5 font-mono">Purge</button></td>
                     </tr>
                 `;
                 tbody.innerHTML += tr;
@@ -768,27 +693,14 @@
         function toggleCertificate(id) {
             if(currentUser !== 'admin') return;
             const exp = exploitsData.find(e => e.id === id);
-            if(exp) {
-                db.collection("exploits").doc(id).update({
-                    certified: !exp.certified
-                });
-            }
+            if(exp) db.collection("exploits").doc(id).update({ certified: !exp.certified });
         }
 
-        function simulateSync(name) {
-            alert(`Synced [${name}] successfully!`);
-        }
+        function simulateSync(name) { alert(`Synced [${name}] successfully!`); }
 
         buildThemeSelector();
         const savedThemeIdx = localStorage.getItem('cheat_today_theme_idx');
         setTheme(savedThemeIdx !== null ? parseInt(savedThemeIdx) : 0);
-
-        window.onclick = function(event) {
-            if (!event.target.matches('button') && !event.target.closest('.relative')) {
-                const dropdown = document.getElementById('theme-dropdown');
-                if (!dropdown.classList.contains('hidden')) dropdown.classList.add('hidden');
-            }
-        }
     </script>
 </body>
 </html>
