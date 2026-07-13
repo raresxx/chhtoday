@@ -9,6 +9,7 @@
     
     <!-- FIREBASE CORE SDKS (COMPAT MODE FOR EASY SINGLE FILE INTEGRATION) -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     
     <style>
@@ -434,7 +435,6 @@
             const container = document.getElementById('exploits-container');
             container.innerHTML = '';
 
-            // Definirea structurii și a ordinii stricte cerute de tine
             const structuralCategories = [
                 { id: 'windows_executors', label: 'Windows Executors' },
                 { id: 'mac_executors', label: 'Mac Executors' },
@@ -443,16 +443,13 @@
             ];
 
             structuralCategories.forEach(cat => {
-                // Filtrare module din categoria curentă (dacă nu au câmp, fallback la windows_executors)
                 const itemsInCat = exploitsData.filter(exp => {
                     const currentCat = exp.category || 'windows_executors';
                     return currentCat === cat.id;
                 });
 
-                // Dacă categoria este complet goală, dăm skip (nu randează titlul, nu ocupă loc)
                 if (itemsInCat.length === 0) return;
 
-                // Generăm blocul categoriei cu titlul și liniuța specifică
                 let catSectionHtml = `
                     <div class="space-y-6">
                         <div class="flex items-center gap-3 border-b border-theme pb-3.5 mt-4">
@@ -462,7 +459,6 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 `;
 
-                // Iterăm cardurile din această categorie
                 itemsInCat.forEach(exp => {
                     let statusBadge = '';
                     if(exp.status === 'updated') {
@@ -536,7 +532,6 @@
             });
         }
 
-        // --- 3. CREATE EXPLOIT (FIREBASE WRITE WITH CATEGORY) ---
         function createNewExploit() {
             if(currentUser !== 'admin') return;
 
@@ -596,7 +591,6 @@
             }).catch(err => alert("Error writing to cloud database: " + err));
         }
 
-        // --- 4. DELETE EXPLOIT ---
         function deleteExploit(id, name) {
             if(currentUser !== 'admin') {
                 alert("Unauthorized: Root privileges missing.");
@@ -630,31 +624,52 @@
             const u = document.getElementById('username').value.trim();
             const p = document.getElementById('password').value;
 
-            if (u === 'admin' && p === 'admin534673475634raresxx48957486778') {
-                currentUser = 'admin';
-            } else {
+            // Dacă valoarea introdusă este un email (conține @), logăm ca Admin prin Firebase Auth
+            if (u.includes('@')) {
+                firebase.auth().signInWithEmailAndPassword(u, p)
+                .then(() => {
+                    currentUser = 'admin';
+                    setupDashboardView();
+                    switchView('dashboard');
+                    document.getElementById('loginNavBtn').classList.add('hidden');
+                    document.getElementById('logoutNavBtn').classList.remove('hidden');
+                })
+                .catch((error) => {
+                    alert('Eroare autentificare admin securizat: ' + error.message);
+                });
+            } 
+            // Altfel, păstrăm intactă verificarea clasică pentru conturile de developeri active
+            else {
                 const matched = exploitsData.find(e => e.owner === u && e.password === p);
                 if (matched) {
                     currentUser = u;
+                    setupDashboardView();
+                    switchView('dashboard');
+                    document.getElementById('loginNavBtn').classList.add('hidden');
+                    document.getElementById('logoutNavBtn').classList.remove('hidden');
                 } else {
                     alert('Incorrect credentials');
-                    return;
                 }
             }
-
-            setupDashboardView();
-            switchView('dashboard');
-            document.getElementById('loginNavBtn').classList.add('hidden');
-            document.getElementById('logoutNavBtn').classList.remove('hidden');
         }
 
         function logout() {
-            currentUser = null;
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
-            document.getElementById('loginNavBtn').classList.remove('hidden');
-            document.getElementById('logoutNavBtn').classList.add('hidden');
-            switchView('main');
+            firebase.auth().signOut().then(() => {
+                currentUser = null;
+                document.getElementById('username').value = '';
+                document.getElementById('password').value = '';
+                document.getElementById('loginNavBtn').classList.remove('hidden');
+                document.getElementById('logoutNavBtn').classList.add('hidden');
+                switchView('main');
+            }).catch((err) => {
+                // Fallback de delogare locală în caz de pierdere a conexiunii
+                currentUser = null;
+                document.getElementById('username').value = '';
+                document.getElementById('password').value = '';
+                document.getElementById('loginNavBtn').classList.remove('hidden');
+                document.getElementById('logoutNavBtn').classList.add('hidden');
+                switchView('main');
+            });
         }
 
         function setupDashboardView() {
