@@ -28,17 +28,17 @@
             background-color: var(--bg-main);
             color: var(--text-main);
             font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: background-color 0.4s ease, color 0.4s ease;
         }
 
         .custom-card {
             background-color: var(--bg-card);
             border: 1px solid var(--border);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
         .custom-card:hover {
-            border-color: rgba(var(--accent-rgb), 0.25);
-            box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.7);
+            border-color: rgba(var(--accent-rgb), 0.35);
+            box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.8);
         }
 
         .custom-input {
@@ -57,6 +57,19 @@
         .accent-color { color: var(--accent); }
         .accent-bg { background-color: var(--accent); }
         
+        /* Flawless Max-Height Dropdown Smooth Animation */
+        .dropdown-content {
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, margin-top 0.35s ease;
+        }
+        .dropdown-content.open {
+            max-height: 600px;
+            opacity: 1;
+            margin-top: 1rem;
+        }
+
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: var(--bg-main); }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 20px; }
@@ -75,9 +88,7 @@
                 <button onclick="toggleThemeDropdown()" class="cursor-pointer text-xs uppercase tracking-widest text-muted hover:text-white transition flex items-center gap-2 font-mono bg-neutral-900/40 px-3 py-1.5 rounded-full border border-theme">
                     <i class="fas fa-palette text-[11px] accent-color"></i> Appearance <i class="fas fa-chevron-down text-[9px] opacity-60"></i>
                 </button>
-                <div id="theme-dropdown" class="hidden absolute left-0 mt-3 w-56 bg-neutral-950 border border-neutral-800 rounded-2xl shadow-2xl py-2 z-50 font-mono text-xs overflow-hidden">
-                    <!-- Injected dynamically via JavaScript -->
-                </div>
+                <div id="theme-dropdown" class="hidden absolute left-0 mt-3 w-56 bg-neutral-950 border border-neutral-800 rounded-2xl shadow-2xl py-2 z-50 font-mono text-xs overflow-hidden"></div>
             </div>
         </div>
         
@@ -92,39 +103,35 @@
     </header>
 
     <!-- CONTENT WRAPPER -->
-    <main class="container mx-auto px-6 py-16 flex-grow max-w-5xl">
+    <main class="container mx-auto px-6 py-12 flex-grow max-w-6xl">
 
         <!-- VIEW 1: EXPLOITS WINDOW -->
-        <section id="view-main" class="space-y-12">
+        <section id="view-main" class="space-y-10">
             <!-- HEADER CU VERSIUNI ROBLOX -->
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-theme pb-8">
-                <div class="space-y-2">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-theme pb-6">
+                <div class="space-y-1">
                     <h1 class="text-2xl font-bold tracking-tight text-white font-mono uppercase">All Exploits</h1>
-                    <p class="text-sm text-muted max-w-xl">Live Monitoring for exploits.</p>
+                    <p class="text-sm text-muted">Live Monitoring for exploits.</p>
                 </div>
                 
-                <!-- MODULE VERSIUNI (LE MODIFICI MANUAL DE AICI JOS) -->
                 <div class="flex flex-wrap gap-3 font-mono text-[10px]">
-                    <!-- Windows Card -->
-                    <div class="bg-neutral-900/40 border border-theme rounded-xl px-4 py-3 flex items-center gap-3">
+                    <div class="bg-neutral-900/40 border border-theme rounded-xl px-4 py-2.5 flex items-center gap-3">
                         <i class="fab fa-windows text-sky-400 text-sm"></i>
                         <div class="flex flex-col">
                             <span class="text-neutral-400 font-bold uppercase tracking-wide">Windows: <span class="text-white normal-case font-normal select-all">version-36a2600cebf1487d</span></span>
-                            <span class="text-muted text-[9px] mt-0.5">Updated: 7/9/2026</span>
                         </div>
                     </div>
-                    <!-- Mac Card -->
-                    <div class="bg-neutral-900/40 border border-theme rounded-xl px-4 py-3 flex items-center gap-3">
+                    <div class="bg-neutral-900/40 border border-theme rounded-xl px-4 py-2.5 flex items-center gap-3">
                         <i class="fab fa-apple text-white text-sm"></i>
                         <div class="flex flex-col">
-                            <span class="text-neutral-400 font-bold uppercase tracking-wide">Mac Version: <span class="text-white normal-case font-normal select-all">version-56940828b8454204</span></span>
-                            <span class="text-muted text-[9px] mt-0.5">Updated: 7/9/2026</span>
+                            <span class="text-neutral-400 font-bold uppercase tracking-wide">Mac: <span class="text-white normal-case font-normal select-all">version-56940828b8454204</span></span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div id="exploits-container" class="space-y-12">
+            <!-- Exploits dynamic layout container -->
+            <div id="exploits-container" class="space-y-10">
                 <!-- Syncing dynamically with Firebase -->
             </div>
         </section>
@@ -192,24 +199,17 @@
                             <select id="dash-category" class="w-full custom-input rounded-xl px-4 py-3 text-white cursor-pointer">
                                 <option value="windows_executors">Windows Executors</option>
                                 <option value="mac_executors">Mac Executors</option>
-                                <option value="windows_externals">Windows Externals</option>
+                                <option value="windows_externals">Windows Executors</option>
                                 <option value="linux_executors">Linux Executors</option>
                             </select>
                         </div>
-                        
-                        <div class="grid grid-cols-3 gap-3 bg-black/30 p-4 rounded-2xl border border-theme text-[10px] text-center">
-                            <label class="flex flex-col items-center gap-2 cursor-pointer p-2 hover:bg-neutral-900 rounded-xl transition">
-                                <span class="text-muted">Raknet</span>
-                                <input type="checkbox" id="dash-raknet" class="accent-bg bg-neutral-900 border-none rounded w-4 h-4 cursor-pointer">
-                            </label>
-                            <label class="flex flex-col items-center gap-2 cursor-pointer p-2 hover:bg-neutral-900 rounded-xl transition">
-                                <span class="text-muted">Decompiler</span>
-                                <input type="checkbox" id="dash-decompiler" class="accent-bg bg-neutral-900 border-none rounded w-4 h-4 cursor-pointer">
-                            </label>
-                            <label class="flex flex-col items-center gap-2 cursor-pointer p-2 hover:bg-neutral-900 rounded-xl transition">
-                                <span class="text-muted">Multi-Inst</span>
-                                <input type="checkbox" id="dash-multi" class="accent-bg bg-neutral-900 border-none rounded w-4 h-4 cursor-pointer">
-                            </label>
+                        <div class="space-y-2">
+                            <label class="text-muted uppercase text-[10px] tracking-wide">Exploit Version string</label>
+                            <input type="text" id="dash-version-str" class="w-full custom-input rounded-xl px-4 py-3 text-white" placeholder="e.g. v3.0.3vr">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-muted uppercase text-[10px] tracking-wide">Last Updated Text Details</label>
+                            <input type="text" id="dash-updated-str" class="w-full custom-input rounded-xl px-4 py-3 text-white" placeholder="UI - 24/05/26 Velocity - 10/07/26">
                         </div>
                     </div>
 
@@ -222,18 +222,66 @@
                             <label class="text-muted uppercase text-[10px] tracking-wide">Discord</label>
                             <input type="text" id="dash-discord" class="w-full custom-input rounded-xl px-4 py-3">
                         </div>
-                        <div class="flex items-center justify-between bg-black/30 p-4 rounded-2xl border border-theme">
-                            <div>
-                                <span class="block font-bold text-white text-[11px]">Keyless</span>
-                                <span class="text-[10px] text-muted">Assign if the exploit is keyless.</span>
+
+                        <!-- PROCENTE UNC SI SUNC INPUTS -->
+                        <div class="grid grid-cols-2 gap-4 bg-black/20 p-4 rounded-2xl border border-theme">
+                            <div class="space-y-1.5">
+                                <label class="text-muted uppercase text-[9px] font-bold tracking-wide">UNC Procent (%)</label>
+                                <input type="text" id="dash-unc-val" class="w-full custom-input rounded-xl px-3 py-2 text-white" placeholder="ex: 92">
                             </div>
-                            <input type="checkbox" id="dash-keyless" class="accent-bg bg-neutral-900 border-none rounded w-5 h-5 cursor-pointer">
+                            <div class="space-y-1.5">
+                                <label class="text-muted uppercase text-[9px] font-bold tracking-wide">sUNC Procent (%)</label>
+                                <input type="text" id="dash-sunc-val" class="w-full custom-input rounded-xl px-3 py-2 text-white" placeholder="ex: 74">
+                            </div>
+                        </div>
+
+                        <!-- CHECKBOX GRID SYSTEM -->
+                        <div class="grid grid-cols-3 gap-2 bg-black/30 p-3 rounded-2xl border border-theme text-[10px]">
+                            <label class="flex items-center gap-2 cursor-pointer p-1.5 hover:bg-neutral-900 rounded-xl transition">
+                                <input type="checkbox" id="dash-raknet" class="accent-bg bg-neutral-900 border-none rounded w-3.5 h-3.5 cursor-pointer">
+                                <span class="text-muted">Raknet</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer p-1.5 hover:bg-neutral-900 rounded-xl transition">
+                                <input type="checkbox" id="dash-decompiler" class="accent-bg bg-neutral-900 border-none rounded w-3.5 h-3.5 cursor-pointer">
+                                <span class="text-muted">Decompiler</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer p-1.5 hover:bg-neutral-900 rounded-xl transition">
+                                <input type="checkbox" id="dash-multi" class="accent-bg bg-neutral-900 border-none rounded w-3.5 h-3.5 cursor-pointer">
+                                <span class="text-muted">Multi-Inst</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer p-1.5 hover:bg-neutral-900 rounded-xl transition">
+                                <input type="checkbox" id="dash-keyless" class="accent-bg bg-neutral-900 border-none rounded w-3.5 h-3.5 cursor-pointer">
+                                <span class="text-muted">Keyless</span>
+                            </label>
                         </div>
                     </div>
                 </div>
 
+                <!-- SCRIPT SUPPORT MODULE CONTROLS -->
+                <div class="p-5 bg-black/30 border border-theme rounded-2xl space-y-3">
+                    <span class="block text-[10px] font-bold text-muted uppercase tracking-wide"><i class="fas fa-code mr-1"></i> Script Support System</span>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[10px]">
+                        <label class="flex items-center gap-2 bg-neutral-950 p-2.5 rounded-xl border border-theme cursor-pointer">
+                            <input type="checkbox" id="dash-ss-ue" class="accent-bg rounded w-3.5 h-3.5">
+                            <span>UE Support</span>
+                        </label>
+                        <label class="flex items-center gap-2 bg-neutral-950 p-2.5 rounded-xl border border-theme cursor-pointer">
+                            <input type="checkbox" id="dash-ss-kicia" class="accent-bg rounded w-3.5 h-3.5">
+                            <span>Kiciahook</span>
+                        </label>
+                        <label class="flex items-center gap-2 bg-neutral-950 p-2.5 rounded-xl border border-theme cursor-pointer">
+                            <input type="checkbox" id="dash-ss-yabujin" class="accent-bg rounded w-3.5 h-3.5">
+                            <span>Yabujin</span>
+                        </label>
+                        <label class="flex items-center gap-2 bg-neutral-950 p-2.5 rounded-xl border border-theme cursor-pointer">
+                            <input type="checkbox" id="dash-ss-remote" class="accent-bg rounded w-3.5 h-3.5">
+                            <span>RemoteSpy</span>
+                        </label>
+                    </div>
+                </div>
+
                 <div class="space-y-2 pt-2">
-                    <label class="text-muted uppercase text-[10px] tracking-wide">Exploit Custom Note (Appears on Main Card)</label>
+                    <label class="text-muted uppercase text-[10px] tracking-wide">Exploit Custom Note (Appears inside Card dropdown)</label>
                     <input type="text" id="dash-note" class="w-full custom-input rounded-xl px-4 py-3 text-white" placeholder="Leave blank to remove note banner">
                 </div>
 
@@ -244,12 +292,10 @@
 
             <!-- ADMIN CENTRAL WORKSPACE -->
             <div id="admin-panel" class="hidden space-y-6">
-                <!-- 1. CREATION FORM -->
                 <div class="custom-card p-8 rounded-3xl space-y-6 font-mono text-xs border-dashed border-neutral-700">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2">
                         <i class="fas fa-plus-circle text-emerald-400"></i> Register New Module Node
                     </h3>
-                    
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
                         <div class="space-y-4">
                             <div class="space-y-1.5">
@@ -275,26 +321,7 @@
                                     <option value="linux_executors">Linux Executors</option>
                                 </select>
                             </div>
-                            <div class="grid grid-cols-3 gap-2 bg-black/30 p-3 rounded-2xl border border-theme text-[10px] text-center">
-                                <label class="flex flex-col items-center gap-1.5 cursor-pointer">
-                                    <span class="text-muted">Raknet</span>
-                                    <input type="checkbox" id="create-raknet" class="accent-bg rounded w-4 h-4">
-                                </label>
-                                <label class="flex flex-col items-center gap-1.5 cursor-pointer">
-                                    <span class="text-muted">Decompiler</span>
-                                    <input type="checkbox" id="create-decompiler" class="accent-bg rounded w-4 h-4">
-                                </label>
-                                <label class="flex flex-col items-center gap-1.5 cursor-pointer">
-                                    <span class="text-muted">Multi-Inst</span>
-                                    <input type="checkbox" id="create-multi" class="accent-bg rounded w-4 h-4">
-                                </label>
-                            </div>
-                            <div class="flex items-center justify-between bg-black/30 p-3 rounded-2xl border border-theme">
-                                <span class="font-bold text-white text-[11px]">Keyless Flag</span>
-                                <input type="checkbox" id="create-keyless" class="accent-bg rounded w-4 h-4">
-                            </div>
                         </div>
-
                         <div class="space-y-4">
                             <div class="space-y-1.5">
                                 <label class="text-muted uppercase text-[10px]">Target Link (Website)</label>
@@ -313,23 +340,15 @@
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="space-y-1.5">
-                        <label class="text-muted uppercase text-[10px]">Initial Custom Note (Optional)</label>
-                        <input type="text" id="create-note" class="w-full custom-input rounded-xl px-4 py-3 text-white" placeholder="Add custom card note">
-                    </div>
-
                     <div class="flex justify-end pt-2">
                         <button onclick="createNewExploit()" class="cursor-pointer bg-emerald-500 hover:bg-emerald-600 text-black font-bold px-8 py-3 rounded-xl transition text-xs uppercase tracking-wider">Deploy Module Node</button>
                     </div>
                 </div>
 
-                <!-- 2. MODULE OVERVIEW LIST -->
                 <div class="custom-card p-8 rounded-3xl space-y-4 font-mono text-xs">
                     <h3 class="text-xs font-bold uppercase border-b border-theme pb-4 tracking-wider text-white flex items-center gap-2">
                         <i class="fas fa-shield-alt"></i> Root Governance
                     </h3>
-                    
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs">
                             <thead>
@@ -340,9 +359,7 @@
                                     <th class="pb-3 font-normal text-right">Actions Matrix</th>
                                 </tr>
                             </thead>
-                            <tbody id="admin-table-body" class="divide-y divide-neutral-900">
-                                <!-- Populated dynamically -->
-                            </tbody>
+                            <tbody id="admin-table-body" class="divide-y divide-neutral-900"></tbody>
                         </table>
                     </div>
                 </div>
@@ -434,6 +451,19 @@
             });
         }
 
+        function toggleCardDropdown(id) {
+            const content = document.getElementById(`content-${id}`);
+            const arrow = document.getElementById(`arrow-${id}`);
+            
+            if(content.classList.contains('open')) {
+                content.classList.remove('open');
+                arrow.style.transform = 'rotate(0deg)';
+            } else {
+                content.classList.add('open');
+                arrow.style.transform = 'rotate(180deg)';
+            }
+        }
+
         function renderMainStatus() {
             const container = document.getElementById('exploits-container');
             container.innerHTML = '';
@@ -450,83 +480,120 @@
                 if (itemsInCat.length === 0) return;
 
                 let catSectionHtml = `
-                    <div class="space-y-6">
-                        <div class="flex items-center gap-3 border-b border-theme pb-3.5 mt-4">
-                            <span class="w-4 h-[2px] bg-neutral-600"></span>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3 border-b border-theme pb-2">
+                            <span class="w-3 h-[1px] bg-neutral-700"></span>
                             <h2 class="text-xs font-bold tracking-widest text-neutral-400 font-mono uppercase">${cat.label}</h2>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                 `;
 
                 itemsInCat.forEach(exp => {
                     let statusBadge = '';
                     if(exp.status === 'updated') {
-                        statusBadge = `<span class="text-[10px] font-bold tracking-widest text-emerald-400 font-mono flex items-center gap-2 bg-emerald-500/5 px-3 py-1 border border-emerald-500/20 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> OPERATIONAL</span>`;
+                        statusBadge = `<span class="text-[10px] font-bold tracking-wider text-emerald-400 font-mono bg-emerald-500/10 px-3 py-1 rounded-md border border-emerald-500/20 shadow-sm">UPDATED</span>`;
                     } else if(exp.status === 'upcoming') {
-                        statusBadge = `<span class="text-[10px] font-bold tracking-widest text-blue-400 font-mono flex items-center gap-2 bg-blue-500/5 px-3 py-1 border border-blue-500/20 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span> UPCOMING</span>`;
+                        statusBadge = `<span class="text-[10px] font-bold tracking-wider text-blue-400 font-mono bg-blue-500/10 px-3 py-1 rounded-md border border-blue-500/20">UPCOMING</span>`;
                     } else if(exp.status === 'maintenance') {
-                        statusBadge = `<span class="text-[10px] font-bold tracking-widest text-amber-500 font-mono flex items-center gap-2 bg-amber-500/5 px-3 py-1 border border-amber-500/20 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> MAINTENANCE</span>`;
+                        statusBadge = `<span class="text-[10px] font-bold tracking-wider text-amber-500 font-mono bg-amber-500/10 px-3 py-1 rounded-md border border-amber-500/20">MAINTENANCE</span>`;
                     } else if(exp.status === 'testing') {
-                        statusBadge = `<span class="text-[10px] font-bold tracking-widest text-purple-400 font-mono flex items-center gap-2 bg-purple-500/5 px-3 py-1 border border-purple-500/20 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse"></span> TESTING</span>`;
+                        statusBadge = `<span class="text-[10px] font-bold tracking-wider text-purple-400 font-mono bg-purple-500/10 px-3 py-1 rounded-md border border-purple-500/20">TESTING</span>`;
                     } else {
-                        statusBadge = `<span class="text-[10px] font-bold tracking-widest text-red-400 font-mono flex items-center gap-2 bg-red-500/5 px-3 py-1 border border-red-500/20 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-red-400"></span> PATCHING</span>`;
+                        statusBadge = `<span class="text-[10px] font-bold tracking-wider text-red-400 font-mono bg-red-500/10 px-3 py-1 rounded-md border border-red-500/20">PATCHED</span>`;
                     }
 
-                    const certBadge = exp.certified ? 
-                        `<span class="text-[9px] font-bold tracking-widest border border-emerald-400/30 text-emerald-400 px-2.5 py-1 rounded-lg bg-emerald-400/5 font-mono flex items-center gap-1"><i class="fas fa-shield-alt text-[10px]"></i> CERTIFIED SAFETY</span>` : '';
+                    const uncPct = exp.unc_val ? `<span class="px-2.5 py-0.5 rounded-md bg-neutral-900 border border-neutral-700 text-neutral-100 text-[10px] font-extrabold uppercase tracking-wider">UNC: ${exp.unc_val}%</span>` : '';
+                    const suncPct = exp.sunc_val ? `<span class="px-2.5 py-0.5 rounded-md bg-neutral-900 border border-neutral-700 text-neutral-100 text-[10px] font-extrabold uppercase tracking-wider">sUNC: ${exp.sunc_val}%</span>` : '';
+                    
+                    const versionBadge = exp.versionStr ? `<span class="text-neutral-400 text-[10px] px-2 py-0.5 rounded border border-neutral-800 bg-neutral-950/40">${exp.versionStr}</span>` : '';
+                    const frameworkBadge = `<span class="px-2.5 py-0.5 rounded border border-amber-500/20 bg-amber-500/5 text-amber-400 text-[10px] font-mono font-bold">${exp.keyless ? '🔑 Keyless' : '🔑 Keyed'}</span>`;
+                    
+                    // BADGE SPECIFIC PENTRU CERTIFICARE (Apare doar dacă certified: true)
+                    const certifiedBadge = exp.certified 
+                        ? `<span class="text-[10px] font-bold tracking-wider text-sky-400 font-mono bg-sky-500/10 px-2.5 py-0.5 rounded-md border border-sky-500/30 flex items-center gap-1"><i class="fas fa-shield-alt text-[9px]"></i> Certified</span>` 
+                        : '';
+
+                    const badgeUe = exp.ss_ue 
+                        ? `<span class="border border-emerald-950/40 text-emerald-400 bg-emerald-950/10 px-2.5 py-1 rounded-md flex items-center gap-1"><i class="fas fa-check text-[8px]"></i> UE Support</span>`
+                        : `<span class="border border-red-950/30 text-red-500/80 bg-red-950/5 px-2.5 py-1 rounded-md flex items-center gap-1"><i class="fas fa-times text-[8px]"></i> UE Support</span>`;
+                    
+                    const badgeKicia = exp.ss_kicia 
+                        ? `<span class="border border-emerald-950/40 text-emerald-400 bg-emerald-950/10 px-2.5 py-1 rounded-md flex items-center gap-1"><i class="fas fa-check text-[8px]"></i> Kiciahook</span>`
+                        : `<span class="border border-red-950/30 text-red-500/80 bg-red-950/5 px-2.5 py-1 rounded-md flex items-center gap-1"><i class="fas fa-times text-[8px]"></i> Kiciahook</span>`;
+                    
+                    const badgeYabujin = exp.ss_yabujin 
+                        ? `<span class="border border-emerald-950/40 text-emerald-400 bg-emerald-950/10 px-2.5 py-1 rounded-md flex items-center gap-1"><i class="fas fa-check text-[8px]"></i> Yabujin</span>`
+                        : `<span class="border border-red-950/30 text-red-500/80 bg-red-950/5 px-2.5 py-1 rounded-md flex items-center gap-1"><i class="fas fa-times text-[8px]"></i> Yabujin</span>`;
+                    
+                    const badgeRemote = exp.ss_remote 
+                        ? `<span class="border border-emerald-950/40 text-emerald-400 bg-emerald-950/10 px-2.5 py-1 rounded-md flex items-center gap-1"><i class="fas fa-check text-[8px]"></i> RemoteSpy</span>`
+                        : `<span class="border border-red-950/30 text-red-500/80 bg-red-950/5 px-2.5 py-1 rounded-md flex items-center gap-1"><i class="fas fa-times text-[8px]"></i> RemoteSpy</span>`;
+
+                    const scriptSupportHtml = `
+                        <div class="pt-3 border-t border-theme/60 space-y-2">
+                            <span class="block text-[10px] text-neutral-400 uppercase tracking-wide font-bold"><i class="fas fa-file-code mr-1"></i> Script Support:</span>
+                            <div class="flex flex-wrap gap-2 text-[10px]">
+                                ${badgeUe}
+                                ${badgeKicia}
+                                ${badgeYabujin}
+                                ${badgeRemote}
+                            </div>
+                        </div>
+                    `;
 
                     let noteHtml = '';
                     if(exp.note && exp.note.trim() !== '') {
                         noteHtml = `
-                            <div class="bg-amber-500/10 border border-amber-500/20 text-amber-400 p-3.5 rounded-xl text-xs flex flex-col space-y-1 font-mono">
-                                <span class="text-[9px] uppercase tracking-wider text-amber-500 font-bold"><i class="fas fa-sticky-note mr-1"></i> NOTE:</span>
-                                <p class="text-neutral-200">${exp.note}</p>
+                            <div class="bg-amber-500/5 border border-amber-500/10 text-amber-400/90 p-3 rounded-xl text-xs flex flex-col space-y-0.5">
+                                <span class="text-[9px] uppercase tracking-wider text-amber-500 font-bold">Note:</span>
+                                <p class="text-neutral-300 font-sans">${exp.note}</p>
                             </div>
                         `;
                     }
 
                     catSectionHtml += `
-                        <div class="custom-card rounded-2xl p-7 flex flex-col justify-between space-y-6 font-mono">
-                            <div class="flex justify-between items-start">
-                                <div class="space-y-4">
-                                    <div class="flex flex-wrap items-center gap-2.5">
-                                        <h3 class="text-base font-bold tracking-tight text-white uppercase">${exp.name}</h3>
-                                        ${certBadge}
-                                    </div>
-                                    <div class="flex flex-wrap gap-2 text-[10px]">
-                                        <span class="px-3 py-1.5 rounded-xl bg-black/30 border border-theme text-muted flex items-center gap-2 ${exp.raknet ? 'text-white border-white/10' : 'opacity-20'}">
-                                            <i class="fas ${exp.raknet ? 'fa-check' : 'fa-minus'} text-[9px]"></i> Raknet
-                                        </span>
-                                        <span class="px-3 py-1.5 rounded-xl bg-black/30 border border-theme text-muted flex items-center gap-2 ${exp.decompiler ? 'text-white border-white/10' : 'opacity-20'}">
-                                            <i class="fas ${exp.decompiler ? 'fa-check' : 'fa-minus'} text-[9px]"></i> Decompiler
-                                        </span>
-                                        <span class="px-3 py-1.5 rounded-xl bg-black/30 border border-theme text-muted flex items-center gap-2 ${exp.multiInstance ? 'text-white border-white/10' : 'opacity-20'}">
-                                            <i class="fas ${exp.multiInstance ? 'fa-check' : 'fa-minus'} text-[9px]"></i> Multi-Instance
-                                        </span>
-                                    </div>
+                        <div class="custom-card rounded-2xl p-5 font-mono flex flex-col justify-between">
+                            <!-- HEADER CARD -->
+                            <div onclick="toggleCardDropdown('${exp.id}')" class="flex justify-between items-center cursor-pointer select-none gap-2">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <h3 class="text-sm font-black tracking-tight text-white uppercase">${exp.name}</h3>
+                                    ${certifiedBadge}
+                                    ${versionBadge}
+                                    ${uncPct}
+                                    ${suncPct}
+                                    ${frameworkBadge}
                                 </div>
-                                <div>${statusBadge}</div>
+                                <div class="flex items-center gap-3 shrink-0">
+                                    ${statusBadge}
+                                    <i id="arrow-${exp.id}" class="fas fa-chevron-down text-[11px] text-neutral-500 transition-transform duration-300"></i>
+                                </div>
                             </div>
 
-                            ${noteHtml}
+                            <!-- DIRECT DROPDOWN ANIMATION CONTAINER -->
+                            <div id="content-${exp.id}" class="dropdown-content space-y-4">
+                                <div class="text-[10px] text-muted uppercase">
+                                    Last updated: <span class="text-neutral-400 font-sans">${exp.updatedStr || 'N/A'}</span>
+                                </div>
 
-                            <div class="flex items-center justify-between border-t border-theme pt-5 text-[10px]">
-                                <span class="text-muted uppercase">Framework: <strong class="text-white">${exp.keyless ? 'Keyless' : 'Keyed'}</strong></span>
-                                <button onclick="simulateSync('${exp.name}')" class="cursor-pointer text-neutral-400 hover:text-white transition flex items-center gap-1.5 text-[10px] uppercase tracking-wider bg-neutral-900/60 px-2.5 py-1 rounded-md border border-theme"><i class="fas fa-sync-alt text-[9px]"></i> Sync</button>
-                            </div>
+                                ${noteHtml}
+                                ${scriptSupportHtml}
 
-                            <div class="grid grid-cols-2 gap-3 text-xs tracking-wider uppercase font-bold pt-1">
-                                <a href="${exp.website}" target="_blank" class="border border-theme hover:border-neutral-700 bg-black/20 text-center py-3 rounded-xl transition flex items-center justify-center gap-2 text-white"><i class="fas fa-external-link-alt text-[10px] text-muted"></i> Website</a>
-                                <a href="${exp.discord}" target="_blank" class="border border-theme hover:border-neutral-700 bg-black/20 text-center py-3 rounded-xl transition flex items-center justify-center gap-2 text-white"><i class="fab fa-discord text-xs text-muted"></i> Discord</a>
+                                <div class="flex flex-wrap gap-2 text-[10px] pt-1">
+                                    <span class="px-2.5 py-1 rounded bg-black/40 border border-theme text-muted flex items-center gap-1.5 ${exp.raknet ? 'text-neutral-200 font-bold border-neutral-700' : 'opacity-25'}">Raknet</span>
+                                    <span class="px-2.5 py-1 rounded bg-black/40 border border-theme text-muted flex items-center gap-1.5 ${exp.decompiler ? 'text-neutral-200 font-bold border-neutral-700' : 'opacity-25'}">Decompiler</span>
+                                    <span class="px-2.5 py-1 rounded bg-black/40 border border-theme text-muted flex items-center gap-1.5 ${exp.multiInstance ? 'text-neutral-200 font-bold border-neutral-700' : 'opacity-25'}">Multi-Instance</span>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-2 text-[10px] tracking-wider uppercase font-bold pt-1">
+                                    <a href="${exp.website}" target="_blank" class="border border-theme hover:border-neutral-700 bg-neutral-950/40 text-center py-2.5 rounded-xl transition flex items-center justify-center gap-1.5 text-white"><i class="fas fa-external-link-alt text-[9px] text-muted"></i> Website</a>
+                                    <a href="${exp.discord}" target="_blank" class="border border-theme hover:border-neutral-700 bg-neutral-950/40 text-center py-2.5 rounded-xl transition flex items-center justify-center gap-1.5 text-white"><i class="fab fa-discord text-sm text-muted"></i> Discord</a>
+                                </div>
                             </div>
                         </div>
                     `;
                 });
 
-                catSectionHtml += `
-                        </div>
-                    </div>
-                `;
+                catSectionHtml += `</div></div>`;
                 container.innerHTML += catSectionHtml;
             });
         }
@@ -537,15 +604,10 @@
             const name = document.getElementById('create-name').value.trim();
             const status = document.getElementById('create-status').value;
             const category = document.getElementById('create-category').value;
-            const raknet = document.getElementById('create-raknet').checked;
-            const decompiler = document.getElementById('create-decompiler').checked;
-            const multi = document.getElementById('create-multi').checked;
-            const keyless = document.getElementById('create-keyless').checked;
             const web = document.getElementById('create-web').value.trim() || "#";
             const discord = document.getElementById('create-discord').value.trim() || "#";
             const owner = document.getElementById('create-owner').value.trim();
             const password = document.getElementById('create-password').value;
-            const note = document.getElementById('create-note').value.trim();
 
             if(!name || !owner || !password) {
                 alert("Missing required fields.");
@@ -558,16 +620,24 @@
                 name: name,
                 status: status,
                 category: category,
-                raknet: raknet,
-                decompiler: decompiler,
-                multiInstance: multi,
-                keyless: keyless,
+                raknet: false,
+                decompiler: false,
+                multiInstance: false,
+                keyless: false,
+                unc_val: "100",
+                sunc_val: "100",
+                versionStr: "v1.0.0",
+                updatedStr: "Initial Setup",
+                ss_ue: false,
+                ss_kicia: false,
+                ss_yabujin: false,
+                ss_remote: false,
                 website: web,
                 discord: discord,
                 certified: false,
                 owner: owner,
                 password: password,
-                note: note
+                note: ""
             };
 
             db.collection("exploits").doc(newId).set(newExploit).then(() => {
@@ -608,7 +678,7 @@
                     document.getElementById('logoutNavBtn').classList.remove('hidden');
                 })
                 .catch((error) => {
-                    alert('EROARE FIREBASE CORE: [' + error.code + '] -> ' + error.message);
+                    alert('EROARE: ' + error.message);
                 });
             } 
             else {
@@ -620,7 +690,7 @@
                     document.getElementById('loginNavBtn').classList.add('hidden');
                     document.getElementById('logoutNavBtn').classList.remove('hidden');
                 } else {
-                    alert('Incorrect developer credentials (Firestore Node Local Match Failed)');
+                    alert('Incorrect developer credentials.');
                 }
             }
         }
@@ -661,13 +731,24 @@
             document.getElementById('dash-name').value = exp.name;
             document.getElementById('dash-status').value = exp.status;
             document.getElementById('dash-category').value = exp.category || 'windows_executors';
-            document.getElementById('dash-raknet').checked = exp.raknet;
-            document.getElementById('dash-decompiler').checked = exp.decompiler;
-            document.getElementById('dash-multi').checked = exp.multiInstance;
-            document.getElementById('dash-web').value = exp.website;
-            document.getElementById('dash-discord').value = exp.discord;
-            document.getElementById('dash-keyless').checked = exp.keyless;
+            document.getElementById('dash-raknet').checked = !!exp.raknet;
+            document.getElementById('dash-decompiler').checked = !!exp.decompiler;
+            document.getElementById('dash-multi').checked = !!exp.multiInstance;
+            document.getElementById('dash-web').value = exp.website || "";
+            document.getElementById('dash-discord').value = exp.discord || "";
+            document.getElementById('dash-keyless').checked = !!exp.keyless;
             document.getElementById('dash-note').value = exp.note || "";
+            
+            document.getElementById('dash-unc-val').value = exp.unc_val || "100";
+            document.getElementById('dash-sunc-val').value = exp.sunc_val || "100";
+            
+            document.getElementById('dash-version-str').value = exp.versionStr || "";
+            document.getElementById('dash-updated-str').value = exp.updatedStr || "";
+            
+            document.getElementById('dash-ss-ue').checked = !!exp.ss_ue;
+            document.getElementById('dash-ss-kicia').checked = !!exp.ss_kicia;
+            document.getElementById('dash-ss-yabujin').checked = !!exp.ss_yabujin;
+            document.getElementById('dash-ss-remote').checked = !!exp.ss_remote;
         }
 
         function saveDevChanges() {
@@ -681,7 +762,18 @@
                 website: document.getElementById('dash-web').value,
                 discord: document.getElementById('dash-discord').value,
                 keyless: document.getElementById('dash-keyless').checked,
-                note: document.getElementById('dash-note').value.trim()
+                note: document.getElementById('dash-note').value.trim(),
+                
+                unc_val: document.getElementById('dash-unc-val').value.trim() || "100",
+                sunc_val: document.getElementById('dash-sunc-val').value.trim() || "100",
+                
+                versionStr: document.getElementById('dash-version-str').value.trim(),
+                updatedStr: document.getElementById('dash-updated-str').value.trim(),
+                
+                ss_ue: document.getElementById('dash-ss-ue').checked,
+                ss_kicia: document.getElementById('dash-ss-kicia').checked,
+                ss_yabujin: document.getElementById('dash-ss-yabujin').checked,
+                ss_remote: document.getElementById('dash-ss-remote').checked
             };
             db.collection("exploits").doc(currentEditingExploitId).update(updatedData).then(() => {
                 alert(`Node updated globally!`);
@@ -713,8 +805,6 @@
             const exp = exploitsData.find(e => e.id === id);
             if(exp) db.collection("exploits").doc(id).update({ certified: !exp.certified });
         }
-
-        function simulateSync(name) { alert(`Synced [${name}] successfully!`); }
 
         buildThemeSelector();
         const savedThemeIdx = localStorage.getItem('cheat_today_theme_idx');
