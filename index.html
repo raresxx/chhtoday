@@ -82,7 +82,7 @@
         
         <nav class="flex items-center gap-3">
             <!-- Discord Gateway Link -->
-            <a href="https://discord.gg/KEaaVFApqa" target="_blank" class="cursor-pointer text-muted hover:text-white transition p-2 flex items-center justify-center font-mono text-base" title="Join our Discord">
+            <a href="https://discord.gg/yourserver" target="_blank" class="cursor-pointer text-muted hover:text-white transition p-2 flex items-center justify-center font-mono text-base" title="Join our Discord">
                 <i class="fab fa-discord"></i>
             </a>
             <button onclick="switchView('main')" class="cursor-pointer text-xs uppercase tracking-widest text-muted hover:text-white transition px-4 py-2 rounded-full font-mono">Exploits</button>
@@ -94,16 +94,16 @@
     <!-- CONTENT WRAPPER -->
     <main class="container mx-auto px-6 py-16 flex-grow max-w-5xl">
 
-        <!-- VIEW 1: EXPLOITS WINDOW (STRICT TWO PER ROW ON DESKTOP) -->
+        <!-- VIEW 1: EXPLOITS WINDOW -->
         <section id="view-main" class="space-y-12">
             <div class="flex flex-col space-y-2 border-b border-theme pb-8">
                 <h1 class="text-2xl font-bold tracking-tight text-white font-mono uppercase">All Exploits</h1>
                 <p class="text-sm text-muted max-w-xl">Live Monitoring for exploits.</p>
             </div>
 
-            <!-- Explicit 2-Column Desktop Grid Allocation -->
-            <div id="exploits-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Syncing with Firebase Live Stream -->
+            <!-- Holder for Categorized Content Grid Blocks -->
+            <div id="exploits-container" class="space-y-12">
+                <!-- Syncing dynamically with Firebase live categories streams -->
             </div>
         </section>
 
@@ -163,6 +163,15 @@
                                 <option value="maintenance">MAINTENANCE (Under review)</option>
                                 <option value="testing">TESTING (In development)</option>
                                 <option value="patching">NOT UPDATED (Patched)</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-muted uppercase text-[10px] tracking-wide">Category Category</label>
+                            <select id="dash-category" class="w-full custom-input rounded-xl px-4 py-3 text-white cursor-pointer">
+                                <option value="windows_executors">Windows Executors</option>
+                                <option value="mac_executors">Mac Executors</option>
+                                <option value="windows_externals">Windows Externals</option>
+                                <option value="linux_executors">Linux Executors</option>
                             </select>
                         </div>
                         
@@ -237,6 +246,15 @@
                                     <option value="maintenance">MAINTENANCE</option>
                                     <option value="testing">TESTING</option>
                                     <option value="patching">PATCHING</option>
+                                </select>
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-muted uppercase text-[10px]">Assigned Category</label>
+                                <select id="create-category" class="w-full custom-input rounded-xl px-4 py-3 text-white">
+                                    <option value="windows_executors">Windows Executors</option>
+                                    <option value="mac_executors">Mac Executors</option>
+                                    <option value="windows_externals">Windows Externals</option>
+                                    <option value="linux_executors">Linux Executors</option>
                                 </select>
                             </div>
                             <div class="grid grid-cols-3 gap-2 bg-black/30 p-3 rounded-2xl border border-theme text-[10px] text-center">
@@ -325,7 +343,7 @@
 
     <!-- ENGINE CODE CORE -->
     <script>
-        // --- 1. FIREBASE CONFIGURATION (INTEGRATĂ CU SUCCES) ---
+        // --- 1. FIREBASE CONFIGURATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyD2-wBRj4JXsrf93dPGTC8SIm09wpSL4mM",
             authDomain: "cheattoday.firebaseapp.com",
@@ -371,8 +389,8 @@
 
         function seedInitialData() {
             const defaults = [
-                { name: "Lunar", status: "updated", raknet: true, decompiler: true, multiInstance: false, keyless: false, website: "https://lunar.cheat.today", discord: "https://discord.gg/lunar", certified: true, owner: "lunar_dev", password: "elasticNora666:bloxgen.netFRF", note: "" },
-                { name: "Project Vyrix", status: "upcoming", raknet: true, decompiler: true, multiInstance: true, keyless: true, website: "https://vyrix.cheat.today", discord: "https://discord.gg/vyrix", certified: false, owner: "vyrix_dev", password: "", note: "" }
+                { name: "Lunar", status: "updated", category: "windows_executors", raknet: true, decompiler: true, multiInstance: false, keyless: false, website: "https://lunar.cheat.today", discord: "https://discord.gg/lunar", certified: true, owner: "lunar_dev", password: "elasticNora666:bloxgen.netFRF", note: "" },
+                { name: "Project Vyrix", status: "upcoming", category: "windows_executors", raknet: true, decompiler: true, multiInstance: true, keyless: true, website: "https://vyrix.cheat.today", discord: "https://discord.gg/vyrix", certified: false, owner: "vyrix_dev", password: "", note: "" }
             ];
             defaults.forEach(exp => {
                 const customId = exp.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
@@ -416,80 +434,115 @@
             const container = document.getElementById('exploits-container');
             container.innerHTML = '';
 
-            exploitsData.forEach(exp => {
-                let statusBadge = '';
-                if(exp.status === 'updated') {
-                    statusBadge = `<span class="text-[10px] font-bold tracking-widest text-emerald-400 font-mono flex items-center gap-2 bg-emerald-500/5 px-3 py-1 border border-emerald-500/20 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> OPERATIONAL</span>`;
-                } else if(exp.status === 'upcoming') {
-                    statusBadge = `<span class="text-[10px] font-bold tracking-widest text-blue-400 font-mono flex items-center gap-2 bg-blue-500/5 px-3 py-1 border border-blue-500/20 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span> UPCOMING</span>`;
-                } else if(exp.status === 'maintenance') {
-                    statusBadge = `<span class="text-[10px] font-bold tracking-widest text-amber-500 font-mono flex items-center gap-2 bg-amber-500/5 px-3 py-1 border border-amber-500/20 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> MAINTENANCE</span>`;
-                } else if(exp.status === 'testing') {
-                    statusBadge = `<span class="text-[10px] font-bold tracking-widest text-purple-400 font-mono flex items-center gap-2 bg-purple-500/5 px-3 py-1 border border-purple-500/20 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse"></span> TESTING</span>`;
-                } else {
-                    statusBadge = `<span class="text-[10px] font-bold tracking-widest text-red-400 font-mono flex items-center gap-2 bg-red-500/5 px-3 py-1 border border-red-500/20 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-red-400"></span> PATCHING</span>`;
-                }
+            // Definirea structurii și a ordinii stricte cerute de tine
+            const structuralCategories = [
+                { id: 'windows_executors', label: 'Windows Executors' },
+                { id: 'mac_executors', label: 'Mac Executors' },
+                { id: 'windows_externals', label: 'Windows Externals' },
+                { id: 'linux_executors', label: 'Linux Executors' }
+            ];
 
-                const certBadge = exp.certified ? 
-                    `<span class="text-[9px] font-bold tracking-widest border border-emerald-400/30 text-emerald-400 px-2.5 py-1 rounded-lg bg-emerald-400/5 font-mono flex items-center gap-1"><i class="fas fa-shield-alt text-[10px]"></i> CERTIFIED SAFETY</span>` : '';
+            structuralCategories.forEach(cat => {
+                // Filtrare module din categoria curentă (dacă nu au câmp, fallback la windows_executors)
+                const itemsInCat = exploitsData.filter(exp => {
+                    const currentCat = exp.category || 'windows_executors';
+                    return currentCat === cat.id;
+                });
 
-                // Build note component markup if present
-                let noteHtml = '';
-                if(exp.note && exp.note.trim() !== '') {
-                    noteHtml = `
-                        <div class="bg-amber-500/10 border border-amber-500/20 text-amber-400 p-3.5 rounded-xl text-xs flex flex-col space-y-1 font-mono">
-                            <span class="text-[9px] uppercase tracking-wider text-amber-500 font-bold"><i class="fas fa-sticky-note mr-1"></i> NOTE:</span>
-                            <p class="text-neutral-200">${exp.note}</p>
+                // Dacă categoria este complet goală, dăm skip (nu randează titlul, nu ocupă loc)
+                if (itemsInCat.length === 0) return;
+
+                // Generăm blocul categoriei cu titlul și liniuța specifică
+                let catSectionHtml = `
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-3 border-b border-theme pb-3.5 mt-4">
+                            <span class="w-4 h-[2px] bg-neutral-600"></span>
+                            <h2 class="text-xs font-bold tracking-widest text-neutral-400 font-mono uppercase">${cat.label}</h2>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                `;
+
+                // Iterăm cardurile din această categorie
+                itemsInCat.forEach(exp => {
+                    let statusBadge = '';
+                    if(exp.status === 'updated') {
+                        statusBadge = `<span class="text-[10px] font-bold tracking-widest text-emerald-400 font-mono flex items-center gap-2 bg-emerald-500/5 px-3 py-1 border border-emerald-500/20 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> OPERATIONAL</span>`;
+                    } else if(exp.status === 'upcoming') {
+                        statusBadge = `<span class="text-[10px] font-bold tracking-widest text-blue-400 font-mono flex items-center gap-2 bg-blue-500/5 px-3 py-1 border border-blue-500/20 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span> UPCOMING</span>`;
+                    } else if(exp.status === 'maintenance') {
+                        statusBadge = `<span class="text-[10px] font-bold tracking-widest text-amber-500 font-mono flex items-center gap-2 bg-amber-500/5 px-3 py-1 border border-amber-500/20 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> MAINTENANCE</span>`;
+                    } else if(exp.status === 'testing') {
+                        statusBadge = `<span class="text-[10px] font-bold tracking-widest text-purple-400 font-mono flex items-center gap-2 bg-purple-500/5 px-3 py-1 border border-purple-500/20 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse"></span> TESTING</span>`;
+                    } else {
+                        statusBadge = `<span class="text-[10px] font-bold tracking-widest text-red-400 font-mono flex items-center gap-2 bg-red-500/5 px-3 py-1 border border-red-500/20 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-red-400"></span> PATCHING</span>`;
+                    }
+
+                    const certBadge = exp.certified ? 
+                        `<span class="text-[9px] font-bold tracking-widest border border-emerald-400/30 text-emerald-400 px-2.5 py-1 rounded-lg bg-emerald-400/5 font-mono flex items-center gap-1"><i class="fas fa-shield-alt text-[10px]"></i> CERTIFIED SAFETY</span>` : '';
+
+                    let noteHtml = '';
+                    if(exp.note && exp.note.trim() !== '') {
+                        noteHtml = `
+                            <div class="bg-amber-500/10 border border-amber-500/20 text-amber-400 p-3.5 rounded-xl text-xs flex flex-col space-y-1 font-mono">
+                                <span class="text-[9px] uppercase tracking-wider text-amber-500 font-bold"><i class="fas fa-sticky-note mr-1"></i> NOTE:</span>
+                                <p class="text-neutral-200">${exp.note}</p>
+                            </div>
+                        `;
+                    }
+
+                    catSectionHtml += `
+                        <div class="custom-card rounded-2xl p-7 flex flex-col justify-between space-y-6 font-mono">
+                            <div class="flex justify-between items-start">
+                                <div class="space-y-4">
+                                    <div class="flex flex-wrap items-center gap-2.5">
+                                        <h3 class="text-base font-bold tracking-tight text-white uppercase">${exp.name}</h3>
+                                        ${certBadge}
+                                    </div>
+                                    <div class="flex flex-wrap gap-2 text-[10px]">
+                                        <span class="px-3 py-1.5 rounded-xl bg-black/30 border border-theme text-muted flex items-center gap-2 ${exp.raknet ? 'text-white border-white/10' : 'opacity-20'}">
+                                            <i class="fas ${exp.raknet ? 'fa-check' : 'fa-minus'} text-[9px] accent-color"></i> Raknet
+                                        </span>
+                                        <span class="px-3 py-1.5 rounded-xl bg-black/30 border border-theme text-muted flex items-center gap-2 ${exp.decompiler ? 'text-white border-white/10' : 'opacity-20'}">
+                                            <i class="fas ${exp.decompiler ? 'fa-check' : 'fa-minus'} text-[9px] accent-color"></i> Decompiler
+                                        </span>
+                                        <span class="px-3 py-1.5 rounded-xl bg-black/30 border border-theme text-muted flex items-center gap-2 ${exp.multiInstance ? 'text-white border-white/10' : 'opacity-20'}">
+                                            <i class="fas ${exp.multiInstance ? 'fa-check' : 'fa-minus'} text-[9px] accent-color"></i> Multi-Instance
+                                        </span>
+                                    </div>
+                                </div>
+                                <div>${statusBadge}</div>
+                            </div>
+
+                            ${noteHtml}
+
+                            <div class="flex items-center justify-between border-t border-theme pt-5 text-[10px]">
+                                <span class="text-muted uppercase">Framework: <strong class="text-white">${exp.keyless ? 'Keyless' : 'Keyed'}</strong></span>
+                                <button onclick="simulateSync('${exp.name}')" class="cursor-pointer text-neutral-400 hover:text-white transition flex items-center gap-1.5 text-[10px] uppercase tracking-wider bg-neutral-900/60 px-2.5 py-1 rounded-md border border-theme"><i class="fas fa-sync-alt text-[9px]"></i> Sync</button>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3 text-xs tracking-wider uppercase font-bold pt-1">
+                                <a href="${exp.website}" target="_blank" class="border border-theme hover:border-neutral-700 bg-black/20 text-center py-3 rounded-xl transition flex items-center justify-center gap-2 text-white"><i class="fas fa-external-link-alt text-[10px] text-muted"></i> Website</a>
+                                <a href="${exp.discord}" target="_blank" class="border border-theme hover:border-neutral-700 bg-black/20 text-center py-3 rounded-xl transition flex items-center justify-center gap-2 text-white"><i class="fab fa-discord text-xs text-muted"></i> Discord</a>
+                            </div>
                         </div>
                     `;
-                }
+                });
 
-                const cardHtml = `
-                    <div class="custom-card rounded-2xl p-7 flex flex-col justify-between space-y-6 font-mono">
-                        <div class="flex justify-between items-start">
-                            <div class="space-y-4">
-                                <div class="flex flex-wrap items-center gap-2.5">
-                                    <h3 class="text-base font-bold tracking-tight text-white uppercase">${exp.name}</h3>
-                                    ${certBadge}
-                                </div>
-                                <div class="flex flex-wrap gap-2 text-[10px]">
-                                    <span class="px-3 py-1.5 rounded-xl bg-black/30 border border-theme text-muted flex items-center gap-2 ${exp.raknet ? 'text-white border-white/10' : 'opacity-20'}">
-                                        <i class="fas ${exp.raknet ? 'fa-check' : 'fa-minus'} text-[9px] accent-color"></i> Raknet
-                                    </span>
-                                    <span class="px-3 py-1.5 rounded-xl bg-black/30 border border-theme text-muted flex items-center gap-2 ${exp.decompiler ? 'text-white border-white/10' : 'opacity-20'}">
-                                        <i class="fas ${exp.decompiler ? 'fa-check' : 'fa-minus'} text-[9px] accent-color"></i> Decompiler
-                                    </span>
-                                    <span class="px-3 py-1.5 rounded-xl bg-black/30 border border-theme text-muted flex items-center gap-2 ${exp.multiInstance ? 'text-white border-white/10' : 'opacity-20'}">
-                                        <i class="fas ${exp.multiInstance ? 'fa-check' : 'fa-minus'} text-[9px] accent-color"></i> Multi-Instance
-                                    </span>
-                                </div>
-                            </div>
-                            <div>${statusBadge}</div>
-                        </div>
-
-                        ${noteHtml}
-
-                        <div class="flex items-center justify-between border-t border-theme pt-5 text-[10px]">
-                            <span class="text-muted uppercase">Framework: <strong class="text-white">${exp.keyless ? 'Keyless' : 'Keyed'}</strong></span>
-                            <button onclick="simulateSync('${exp.name}')" class="cursor-pointer text-neutral-400 hover:text-white transition flex items-center gap-1.5 text-[10px] uppercase tracking-wider bg-neutral-900/60 px-2.5 py-1 rounded-md border border-theme"><i class="fas fa-sync-alt text-[9px]"></i> Sync</button>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-3 text-xs tracking-wider uppercase font-bold pt-1">
-                            <a href="${exp.website}" target="_blank" class="border border-theme hover:border-neutral-700 bg-black/20 text-center py-3 rounded-xl transition flex items-center justify-center gap-2 text-white"><i class="fas fa-external-link-alt text-[10px] text-muted"></i> Website</a>
-                            <a href="${exp.discord}" target="_blank" class="border border-theme hover:border-neutral-700 bg-black/20 text-center py-3 rounded-xl transition flex items-center justify-center gap-2 text-white"><i class="fab fa-discord text-xs text-muted"></i> Discord</a>
+                catSectionHtml += `
                         </div>
                     </div>
                 `;
-                container.innerHTML += cardHtml;
+                container.innerHTML += catSectionHtml;
             });
         }
 
-        // --- 3. CREATE EXPLOIT (FIREBASE WRITE) ---
+        // --- 3. CREATE EXPLOIT (FIREBASE WRITE WITH CATEGORY) ---
         function createNewExploit() {
             if(currentUser !== 'admin') return;
 
             const name = document.getElementById('create-name').value.trim();
             const status = document.getElementById('create-status').value;
+            const category = document.getElementById('create-category').value;
             const raknet = document.getElementById('create-raknet').checked;
             const decompiler = document.getElementById('create-decompiler').checked;
             const multi = document.getElementById('create-multi').checked;
@@ -515,6 +568,7 @@
             const newExploit = {
                 name: name,
                 status: status,
+                category: category,
                 raknet: raknet,
                 decompiler: decompiler,
                 multiInstance: multi,
@@ -542,7 +596,7 @@
             }).catch(err => alert("Error writing to cloud database: " + err));
         }
 
-        // --- 4. DELETE EXPLOIT (DOAR PENTRU ADMIN) ---
+        // --- 4. DELETE EXPLOIT ---
         function deleteExploit(id, name) {
             if(currentUser !== 'admin') {
                 alert("Unauthorized: Root privileges missing.");
@@ -583,7 +637,7 @@
                 if (matched) {
                     currentUser = u;
                 } else {
-                    alert('Inccorect crdentials');
+                    alert('Incorrect credentials');
                     return;
                 }
             }
@@ -627,6 +681,7 @@
             if(!exp) return;
             document.getElementById('dash-name').value = exp.name;
             document.getElementById('dash-status').value = exp.status;
+            document.getElementById('dash-category').value = exp.category || 'windows_executors';
             document.getElementById('dash-raknet').checked = exp.raknet;
             document.getElementById('dash-decompiler').checked = exp.decompiler;
             document.getElementById('dash-multi').checked = exp.multiInstance;
@@ -643,6 +698,7 @@
 
             const updatedData = {
                 status: document.getElementById('dash-status').value,
+                category: document.getElementById('dash-category').value,
                 raknet: document.getElementById('dash-raknet').checked,
                 decompiler: document.getElementById('dash-decompiler').checked,
                 multiInstance: document.getElementById('dash-multi').checked,
@@ -668,11 +724,15 @@
 
                 const deleteBtn = `<button onclick="deleteExploit('${exp.id}', '${exp.name}')" class="cursor-pointer text-[10px] bg-neutral-900 hover:bg-red-950/60 border border-neutral-800 hover:border-red-900/50 text-neutral-400 hover:text-red-400 px-2.5 py-1.5 rounded-xl transition font-mono"><i class="fas fa-trash-alt"></i> Purge</button>`;
 
+                const currentCatLabel = exp.category === 'mac_executors' ? 'Mac Exec' : 
+                                        exp.category === 'windows_externals' ? 'Win Ext' : 
+                                        exp.category === 'linux_executors' ? 'Linux Exec' : 'Win Exec';
+
                 const tr = `
                     <tr class="hover:bg-white/5 transition text-neutral-300">
                         <td onclick="loadExploitIntoDevForm('${exp.id}')" class="py-4 font-bold text-white cursor-pointer hover:underline">${exp.name} <i class="fas fa-edit text-[9px] text-muted ml-1"></i></td>
                         <td class="py-4 text-muted text-[11px] font-mono">${exp.owner}</td>
-                        <td class="py-4 uppercase text-[10px] tracking-wider font-mono">${exp.status}</td>
+                        <td class="py-4 uppercase text-[10px] tracking-wider font-mono">${exp.status} <span class="text-[9px] text-muted-400 opacity-50 block font-normal lowercase">(${currentCatLabel})</span></td>
                         <td class="py-4 text-right flex justify-end gap-2">${certBtn} ${deleteBtn}</td>
                     </tr>
                 `;
@@ -691,7 +751,7 @@
         }
 
         function simulateSync(name) {
-            alert(`Synced [${name}] succesfully!`);
+            alert(`Synced [${name}] successfully!`);
         }
 
         buildThemeSelector();
