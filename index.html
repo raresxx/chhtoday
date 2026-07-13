@@ -7,7 +7,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- FIREBASE CORE SDKS (COMPAT MODE) -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -64,20 +63,17 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-neutral-800 selection:text-white">
 
-    <!-- NAVBAR -->
     <header class="border-b border-theme px-8 py-5 flex justify-between items-center bg-black/20 backdrop-blur-xl sticky top-0 z-50">
         <div class="flex items-center gap-6">
             <span onclick="switchView('main')" class="text-xl font-black tracking-tighter cursor-pointer text-white hover:opacity-80 transition font-mono">CHEAT.TODAY</span>
             <div class="h-5 w-[1px] bg-neutral-800"></div>
             
-            <!-- Appearance Menu Selector -->
             <div class="relative inline-block text-left">
                 <button onclick="toggleThemeDropdown()" class="cursor-pointer text-xs uppercase tracking-widest text-muted hover:text-white transition flex items-center gap-2 font-mono bg-neutral-900/40 px-3 py-1.5 rounded-full border border-theme">
                     <i class="fas fa-palette text-[11px] accent-color"></i> Appearance <i class="fas fa-chevron-down text-[9px] opacity-60"></i>
                 </button>
                 <div id="theme-dropdown" class="hidden absolute left-0 mt-3 w-56 bg-neutral-950 border border-neutral-800 rounded-2xl shadow-2xl py-2 z-50 font-mono text-xs overflow-hidden">
-                    <!-- Injected dynamically via JavaScript -->
-                </div>
+                    </div>
             </div>
         </div>
         
@@ -91,10 +87,8 @@
         </nav>
     </header>
 
-    <!-- CONTENT WRAPPER -->
     <main class="container mx-auto px-6 py-16 flex-grow max-w-5xl">
 
-        <!-- VIEW 1: EXPLOITS WINDOW -->
         <section id="view-main" class="space-y-12">
             <div class="flex flex-col space-y-2 border-b border-theme pb-8">
                 <h1 class="text-2xl font-bold tracking-tight text-white font-mono uppercase">All Exploits</h1>
@@ -102,11 +96,9 @@
             </div>
 
             <div id="exploits-container" class="space-y-12">
-                <!-- Syncing dynamically with Firebase -->
-            </div>
+                </div>
         </section>
 
-        <!-- VIEW 2: LOGIN GATEWAY -->
         <section id="view-login" class="hidden max-w-md mx-auto my-12">
             <div class="custom-card p-10 rounded-3xl shadow-2xl space-y-8">
                 <div class="space-y-2 text-center">
@@ -130,7 +122,6 @@
             </div>
         </section>
 
-        <!-- VIEW 3: ACTIVE CONSOLE PANEL -->
         <section id="view-dashboard" class="hidden space-y-6">
             <div class="custom-card p-6 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div class="font-mono">
@@ -142,7 +133,6 @@
                 </div>
             </div>
 
-            <!-- Editor Module Section -->
             <div id="dev-panel" class="custom-card p-8 rounded-3xl space-y-8 font-mono text-xs">
                 <h3 class="text-xs font-bold uppercase border-b border-theme pb-4 tracking-wider text-white flex items-center gap-2">
                     <i class="fas fa-sliders-h mr-2 accent-color"></i> Instance Configuration
@@ -219,9 +209,7 @@
                 </div>
             </div>
 
-            <!-- ADMIN CENTRAL WORKSPACE -->
             <div id="admin-panel" class="hidden space-y-6">
-                <!-- 1. CREATION FORM -->
                 <div class="custom-card p-8 rounded-3xl space-y-6 font-mono text-xs border-dashed border-neutral-700">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2">
                         <i class="fas fa-plus-circle text-emerald-400"></i> Register New Module Node
@@ -301,7 +289,6 @@
                     </div>
                 </div>
 
-                <!-- 2. MODULE OVERVIEW LIST -->
                 <div class="custom-card p-8 rounded-3xl space-y-4 font-mono text-xs">
                     <h3 class="text-xs font-bold uppercase border-b border-theme pb-4 tracking-wider text-white flex items-center gap-2">
                         <i class="fas fa-shield-alt"></i> Root Governance
@@ -318,8 +305,7 @@
                                 </tr>
                             </thead>
                             <tbody id="admin-table-body" class="divide-y divide-neutral-900">
-                                <!-- Populated dynamically -->
-                            </tbody>
+                                </tbody>
                         </table>
                     </div>
                 </div>
@@ -327,21 +313,19 @@
         </section>
     </main>
 
-    <!-- FOOTER -->
     <footer class="border-t border-theme text-center py-8 text-[11px] text-muted font-mono tracking-widest uppercase">
         &copy; 2026 <span class="text-neutral-400">cheat.today</span>
     </footer>
 
-    <!-- ENGINE CODE CORE -->
     <script>
-        // --- 1. CONFIGURARE COMPLETĂ FIREBASE ---
+        // --- 1. CONFIGURARE REPARATĂ CONFORM CONSOLEI TALE ---
         const firebaseConfig = {
-            apiKey: "AIzaSyAs7zK_N8Gv2Z-kY9X0LpQ4m_RjW7tEc3A", 
+            apiKey: "AIzaSyD2-wBRj4JXsrf93dPGTC8sIm09wpSL4mM", 
             authDomain: "cheattoday.firebaseapp.com",
             projectId: "cheattoday",
             storageBucket: "cheattoday.firebasestorage.app",
-            messagingSenderId: "93317930573",
-            appId: "1:93317930573:web:eedc193d8c546f7beb50c4"
+            messagingSenderId: "933179730573",
+            appId: "1:933179730573:web:eedc193d8c546f7beb50c4"
         };
 
         firebase.initializeApp(firebaseConfig);
@@ -589,7 +573,6 @@
                     document.getElementById('logoutNavBtn').classList.remove('hidden');
                 })
                 .catch((error) => {
-                    // Îți sare pop-up pe ecran cu eroarea exactă trimisă de Firebase
                     alert('EROARE FIREBASE CORE: [' + error.code + '] -> ' + error.message);
                 });
             } 
