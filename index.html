@@ -98,10 +98,10 @@
             </a>
             <button onclick="switchView('main')" class="cursor-pointer text-xs uppercase tracking-widest text-muted hover:text-white transition px-4 py-2 rounded-full font-mono">Exploits</button>
             
-            <!-- Buton Dashboard inteligent (Redirecționează corect sau deschide Login) -->
+            <!-- Buton Dashboard inteligent -->
             <button onclick="handleDashboardNav()" id="loginNavBtn" class="cursor-pointer text-xs uppercase tracking-widest bg-white text-black font-bold px-5 py-2 rounded-full hover:bg-neutral-200 transition font-mono shadow-sm">Dashboard</button>
             
-            <!-- Buton Sign Out (Apare dinamic doar când ești autentificat) -->
+            <!-- Buton Sign Out -->
             <button onclick="logout()" id="logoutNavBtn" class="hidden cursor-pointer text-xs uppercase tracking-widest bg-neutral-900/80 border border-neutral-800 text-red-400 px-5 py-2 rounded-full hover:bg-red-950/30 transition font-mono">Sign Out</button>
         </nav>
     </header>
@@ -285,7 +285,7 @@
                 </div>
 
                 <div class="space-y-2 pt-2">
-                    <label class="text-muted uppercase text-[10px] tracking-wide">Exploit Custom Note (Appears inside Card dropdown)</label>
+                    <label class="text-muted uppercase text-[10px] tracking-wide">Exploit Custom Note</label>
                     <input type="text" id="dash-note" class="w-full custom-input rounded-xl px-4 py-3 text-white" placeholder="Leave blank to remove note banner">
                 </div>
 
@@ -409,6 +409,12 @@
                 exploitsData.push({ id: doc.id, ...doc.data() });
             });
             renderMainStatus();
+            
+            // Verificare auto-login pentru conturi de tip Developer după încărcarea datelor
+            if (!currentUser) {
+                checkSavedSession();
+            }
+
             if (currentUser === 'admin') {
                 renderAdminTable();
             }
@@ -417,10 +423,33 @@
         auth.onAuthStateChanged((user) => {
             if (user) {
                 currentUser = 'admin';
+                localStorage.setItem('cheat_today_user', 'admin'); // Salvează starea de Admin local
                 updateNavbarUI();
                 setupDashboardView();
             }
         });
+
+        // Funcție dedicată pentru restaurarea automată a sesiunii stocate local
+        function checkSavedSession() {
+            const savedUser = localStorage.getItem('cheat_today_user');
+            if (!savedUser) return;
+
+            if (savedUser === 'admin') {
+                // Dacă e admin și Firebase s-a deconectat din memorie, re-autentificarea e gestionată de onAuthStateChanged sau necesită input, dar dacă token-ul e valid se reactivează automat
+                return;
+            }
+
+            // Verificare validitate cont Developer salvat
+            const savedPass = localStorage.getItem('cheat_today_pass');
+            if (savedUser && savedPass) {
+                const matched = exploitsData.find(e => e.owner === savedUser && e.password === savedPass);
+                if (matched) {
+                    currentUser = savedUser;
+                    updateNavbarUI();
+                    setupDashboardView();
+                }
+            }
+        }
 
         function setTheme(index) {
             const t = themesList[index];
@@ -511,7 +540,6 @@
                     const versionBadge = exp.versionStr ? `<span class="text-neutral-400 text-[10px] px-2 py-0.5 rounded border border-neutral-800 bg-neutral-950/40">${exp.versionStr}</span>` : '';
                     const frameworkBadge = `<span class="px-2.5 py-0.5 rounded border border-amber-500/20 bg-amber-500/5 text-amber-400 text-[10px] font-mono font-bold">${exp.keyless ? '🔑 Keyless' : '🔑 Keyed'}</span>`;
                     
-                    // BADGE SPECIFIC PENTRU CERTIFICARE (Apare doar dacă certified: true)
                     const certifiedBadge = exp.certified 
                         ? `<span class="text-[10px] font-bold tracking-wider text-sky-400 font-mono bg-sky-500/10 px-2.5 py-0.5 rounded-md border border-sky-500/30 flex items-center gap-1"><i class="fas fa-shield-alt text-[9px]"></i> Certified</span>` 
                         : '';
@@ -556,7 +584,6 @@
 
                     catSectionHtml += `
                         <div class="custom-card rounded-2xl p-5 font-mono flex flex-col justify-between">
-                            <!-- HEADER CARD -->
                             <div onclick="toggleCardDropdown('${exp.id}')" class="flex justify-between items-center cursor-pointer select-none gap-2">
                                 <div class="flex flex-wrap items-center gap-2">
                                     <h3 class="text-sm font-black tracking-tight text-white uppercase">${exp.name}</h3>
@@ -572,7 +599,6 @@
                                 </div>
                             </div>
 
-                            <!-- DIRECT DROPDOWN ANIMATION CONTAINER -->
                             <div id="content-${exp.id}" class="dropdown-content space-y-4">
                                 <div class="text-[10px] text-muted uppercase">
                                     Last updated: <span class="text-neutral-400 font-sans">${exp.updatedStr || 'N/A'}</span>
@@ -667,7 +693,6 @@
             document.getElementById('view-' + viewId).classList.remove('hidden');
         }
 
-        // CONTROL INTELIGENT PENTRU NAVIGARE ȘI REINTRARE ÎN DASHBOARD
         function handleDashboardNav() {
             if (currentUser) {
                 switchView('dashboard');
@@ -676,17 +701,14 @@
             }
         }
 
-        // ACTUALIZARE STRUCTURĂ ȘI STILURI NAVBAR BAZATE PE SESIUNE
         function updateNavbarUI() {
             const loginBtn = document.getElementById('loginNavBtn');
             const logoutBtn = document.getElementById('logoutNavBtn');
 
             if (currentUser) {
-                // Utilizator logat -> Dashboard devine link text simplu, apare butonul de Sign Out
                 loginBtn.className = "cursor-pointer text-xs uppercase tracking-widest text-muted hover:text-white transition px-4 py-2 rounded-full font-mono";
                 logoutBtn.classList.remove('hidden');
             } else {
-                // Utilizator delogat -> Revine la starea curată de buton alb proeminent în dreapta
                 loginBtn.className = "cursor-pointer text-xs uppercase tracking-widest bg-white text-black font-bold px-5 py-2 rounded-full hover:bg-neutral-200 transition font-mono shadow-sm";
                 logoutBtn.classList.add('hidden');
             }
@@ -700,6 +722,7 @@
                 auth.signInWithEmailAndPassword(u, p)
                 .then(() => {
                     currentUser = 'admin';
+                    localStorage.setItem('cheat_today_user', 'admin'); // Salvează sesiunea de Admin
                     updateNavbarUI();
                     setupDashboardView();
                     switchView('dashboard');
@@ -712,6 +735,8 @@
                 const matched = exploitsData.find(e => e.owner === u && e.password === p);
                 if (matched) {
                     currentUser = u;
+                    localStorage.setItem('cheat_today_user', u); // Salvează utilizatorul local
+                    localStorage.setItem('cheat_today_pass', p); // Salvează parola local pentru auto-login dev
                     updateNavbarUI();
                     setupDashboardView();
                     switchView('dashboard');
@@ -724,6 +749,8 @@
         function logout() {
             const clearSessionData = () => {
                 currentUser = null;
+                localStorage.removeItem('cheat_today_user'); // Șterge user-ul din stocarea locală la deconectare
+                localStorage.removeItem('cheat_today_pass'); // Șterge parola stocată la deconectare
                 document.getElementById('username').value = '';
                 document.getElementById('password').value = '';
                 updateNavbarUI();
