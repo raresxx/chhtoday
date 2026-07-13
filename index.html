@@ -81,7 +81,11 @@
         </div>
         
         <nav class="flex items-center gap-3">
-            <button onclick="switchView('main')" class="cursor-pointer text-xs uppercase tracking-widest text-muted hover:text-white transition px-4 py-2 rounded-full font-mono">Registry</button>
+            <!-- Discord Gateway Link -->
+            <a href="https://discord.gg/KEaaVFApqa" target="_blank" class="cursor-pointer text-muted hover:text-white transition p-2 flex items-center justify-center font-mono text-base" title="Join our Discord">
+                <i class="fab fa-discord"></i>
+            </a>
+            <button onclick="switchView('main')" class="cursor-pointer text-xs uppercase tracking-widest text-muted hover:text-white transition px-4 py-2 rounded-full font-mono">Exploits</button>
             <button onclick="switchView('login')" id="loginNavBtn" class="cursor-pointer text-xs uppercase tracking-widest bg-white text-black font-bold px-5 py-2 rounded-full hover:bg-neutral-200 transition font-mono shadow-sm">Dashboard</button>
             <button onclick="logout()" id="logoutNavBtn" class="hidden cursor-pointer text-xs uppercase tracking-widest bg-neutral-900/80 border border-neutral-800 text-red-400 px-5 py-2 rounded-full hover:bg-red-950/30 transition font-mono">Sign Out</button>
         </nav>
@@ -90,7 +94,7 @@
     <!-- CONTENT WRAPPER -->
     <main class="container mx-auto px-6 py-16 flex-grow max-w-5xl">
 
-        <!-- VIEW 1: REGISTRY WINDOW (STRICT TWO PER ROW ON DESKTOP) -->
+        <!-- VIEW 1: EXPLOITS WINDOW (STRICT TWO PER ROW ON DESKTOP) -->
         <section id="view-main" class="space-y-12">
             <div class="flex flex-col space-y-2 border-b border-theme pb-8">
                 <h1 class="text-2xl font-bold tracking-tight text-white font-mono uppercase">All Exploits</h1>
@@ -156,6 +160,8 @@
                             <select id="dash-status" class="w-full custom-input rounded-xl px-4 py-3 text-white cursor-pointer">
                                 <option value="updated">UPDATED (Operational)</option>
                                 <option value="upcoming">UPCOMING (Coming soon)</option>
+                                <option value="maintenance">MAINTENANCE (Under review)</option>
+                                <option value="testing">TESTING (In development)</option>
                                 <option value="patching">NOT UPDATED (Patched)</option>
                             </select>
                         </div>
@@ -195,6 +201,12 @@
                     </div>
                 </div>
 
+                <!-- Custom Exploit Note Integration -->
+                <div class="space-y-2 pt-2">
+                    <label class="text-muted uppercase text-[10px] tracking-wide">Exploit Custom Note (Appears on Main Card)</label>
+                    <input type="text" id="dash-note" class="w-full custom-input rounded-xl px-4 py-3 text-white" placeholder="Leave blank to remove the custom note banner">
+                </div>
+
                 <div class="flex justify-end pt-5 border-t border-theme">
                     <button onclick="saveDevChanges()" class="cursor-pointer bg-white text-black font-bold px-8 py-3 rounded-xl shadow hover:bg-neutral-200 transition text-xs uppercase tracking-wider">Finish</button>
                 </div>
@@ -222,6 +234,8 @@
                                 <select id="create-status" class="w-full custom-input rounded-xl px-4 py-3 text-white">
                                     <option value="updated">UPDATED</option>
                                     <option value="upcoming">UPCOMING</option>
+                                    <option value="maintenance">MAINTENANCE</option>
+                                    <option value="testing">TESTING</option>
                                     <option value="patching">PATCHING</option>
                                 </select>
                             </div>
@@ -264,6 +278,13 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- Admin Node Creation Note -->
+                    <div class="space-y-1.5">
+                        <label class="text-muted uppercase text-[10px]">Initial Custom Note (Optional)</label>
+                        <input type="text" id="create-note" class="w-full custom-input rounded-xl px-4 py-3 text-white" placeholder="Add custom card note directly on creation">
+                    </div>
+
                     <div class="flex justify-end pt-2">
                         <button onclick="createNewExploit()" class="cursor-pointer bg-emerald-500 hover:bg-emerald-600 text-black font-bold px-8 py-3 rounded-xl transition text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/10">Deploy Module Node</button>
                     </div>
@@ -350,8 +371,8 @@
 
         function seedInitialData() {
             const defaults = [
-                { name: "Lunar", status: "updated", raknet: true, decompiler: true, multiInstance: false, keyless: false, website: "https://lunar.cheat.today", discord: "https://discord.gg/lunar", certified: true, owner: "lunar_dev", password: "elasticNora666:bloxgen.netFRF" },
-                { name: "Project Vyrix", status: "upcoming", raknet: true, decompiler: true, multiInstance: true, keyless: true, website: "https://vyrix.cheat.today", discord: "https://discord.gg/vyrix", certified: false, owner: "vyrix_dev", password: "" }
+                { name: "Lunar", status: "updated", raknet: true, decompiler: true, multiInstance: false, keyless: false, website: "https://lunar.cheat.today", discord: "https://discord.gg/lunar", certified: true, owner: "lunar_dev", password: "elasticNora666:bloxgen.netFRF", note: "" },
+                { name: "Project Vyrix", status: "upcoming", raknet: true, decompiler: true, multiInstance: true, keyless: true, website: "https://vyrix.cheat.today", discord: "https://discord.gg/vyrix", certified: false, owner: "vyrix_dev", password: "", note: "" }
             ];
             defaults.forEach(exp => {
                 const customId = exp.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
@@ -401,12 +422,27 @@
                     statusBadge = `<span class="text-[10px] font-bold tracking-widest text-emerald-400 font-mono flex items-center gap-2 bg-emerald-500/5 px-3 py-1 border border-emerald-500/20 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> OPERATIONAL</span>`;
                 } else if(exp.status === 'upcoming') {
                     statusBadge = `<span class="text-[10px] font-bold tracking-widest text-blue-400 font-mono flex items-center gap-2 bg-blue-500/5 px-3 py-1 border border-blue-500/20 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span> UPCOMING</span>`;
+                } else if(exp.status === 'maintenance') {
+                    statusBadge = `<span class="text-[10px] font-bold tracking-widest text-amber-500 font-mono flex items-center gap-2 bg-amber-500/5 px-3 py-1 border border-amber-500/20 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> MAINTENANCE</span>`;
+                } else if(exp.status === 'testing') {
+                    statusBadge = `<span class="text-[10px] font-bold tracking-widest text-purple-400 font-mono flex items-center gap-2 bg-purple-500/5 px-3 py-1 border border-purple-500/20 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse"></span> TESTING</span>`;
                 } else {
                     statusBadge = `<span class="text-[10px] font-bold tracking-widest text-red-400 font-mono flex items-center gap-2 bg-red-500/5 px-3 py-1 border border-red-500/20 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-red-400"></span> PATCHING</span>`;
                 }
 
                 const certBadge = exp.certified ? 
                     `<span class="text-[9px] font-bold tracking-widest border border-emerald-400/30 text-emerald-400 px-2.5 py-1 rounded-lg bg-emerald-400/5 font-mono flex items-center gap-1"><i class="fas fa-shield-alt text-[10px]"></i> CERTIFIED SAFETY</span>` : '';
+
+                // Build note component markup if present
+                let noteHtml = '';
+                if(exp.note && exp.note.trim() !== '') {
+                    noteHtml = `
+                        <div class="bg-amber-500/10 border border-amber-500/20 text-amber-400 p-3.5 rounded-xl text-xs flex flex-col space-y-1 font-mono">
+                            <span class="text-[9px] uppercase tracking-wider text-amber-500 font-bold"><i class="fas fa-sticky-note mr-1"></i> NOTE:</span>
+                            <p class="text-neutral-200">${exp.note}</p>
+                        </div>
+                    `;
+                }
 
                 const cardHtml = `
                     <div class="custom-card rounded-2xl p-7 flex flex-col justify-between space-y-6 font-mono">
@@ -430,6 +466,8 @@
                             </div>
                             <div>${statusBadge}</div>
                         </div>
+
+                        ${noteHtml}
 
                         <div class="flex items-center justify-between border-t border-theme pt-5 text-[10px]">
                             <span class="text-muted uppercase">Framework: <strong class="text-white">${exp.keyless ? 'Keyless' : 'Keyed'}</strong></span>
@@ -460,6 +498,7 @@
             const discord = document.getElementById('create-discord').value.trim() || "#";
             const owner = document.getElementById('create-owner').value.trim();
             const password = document.getElementById('create-password').value;
+            const note = document.getElementById('create-note').value.trim();
 
             if(!name || !owner || !password) {
                 alert("Creation Fault: Module Name, Developer Username, and Password fields are mandatory.");
@@ -484,7 +523,8 @@
                 discord: discord,
                 certified: false,
                 owner: owner,
-                password: password
+                password: password,
+                note: note
             };
 
             db.collection("exploits").doc(newId).set(newExploit).then(() => {
@@ -498,6 +538,7 @@
                 document.getElementById('create-discord').value = '';
                 document.getElementById('create-owner').value = '';
                 document.getElementById('create-password').value = '';
+                document.getElementById('create-note').value = '';
             }).catch(err => alert("Error writing to cloud database: " + err));
         }
 
@@ -592,6 +633,7 @@
             document.getElementById('dash-web').value = exp.website;
             document.getElementById('dash-discord').value = exp.discord;
             document.getElementById('dash-keyless').checked = exp.keyless;
+            document.getElementById('dash-note').value = exp.note || "";
         }
 
         function saveDevChanges() {
@@ -606,7 +648,8 @@
                 multiInstance: document.getElementById('dash-multi').checked,
                 website: document.getElementById('dash-web').value,
                 discord: document.getElementById('dash-discord').value,
-                keyless: document.getElementById('dash-keyless').checked
+                keyless: document.getElementById('dash-keyless').checked,
+                note: document.getElementById('dash-note').value.trim()
             };
 
             db.collection("exploits").doc(currentEditingExploitId).update(updatedData).then(() => {
