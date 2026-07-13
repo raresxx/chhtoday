@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cheat.today</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- FIREBASE CORE SDKS (COMPAT MODE FOR EASY SINGLE FILE INTEGRATION) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    
+    <style>
+        :root {
+            --bg-main: #050505;
+            --bg-card: #0b0b0c;
+            --bg-input: #111113;
+            --border: #1c1c1f;
+            --text-main: #ffffff;
+            --text-muted: #71717a;
+            --accent: #ffffff;
+            --accent-rgb: 255, 255, 255;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .custom-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .custom-card:hover {
+            border-color: rgba(var(--accent-rgb), 0.25);
+            box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.7);
+        }
+
+        .custom-input {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            transition: border-color 0.2s ease;
+        }
+        .custom-input:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+
+        .text-muted { color: var(--text-muted); }
+        .border-theme { border-color: var(--border); }
+        .accent-color { color: var(--accent); }
+        .accent-bg { background-color: var(--accent); }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-main); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 20px; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-neutral-800 selection:text-white">
+
+    <!-- NAVBAR -->
+    <header class="border-b border-theme px-8 py-5 flex justify-between items-center bg-black/20 backdrop-blur-xl sticky top-0 z-50">
+        <div class="flex items-center gap-6">
+            <span onclick="switchView('main')" class="text-xl font-black tracking-tighter cursor-pointer text-white hover:opacity-80 transition font-mono">CHEAT.TODAY</span>
+            <div class="h-5 w-[1px] bg-neutral-800"></div>
+            
+            <!-- Appearance Menu Selector -->
+            <div class="relative inline-block text-left">
+                <button onclick="toggleThemeDropdown()" class="cursor-pointer text-xs uppercase tracking-widest text-muted hover:text-white transition flex items-center gap-2 font-mono bg-neutral-900/40 px-3 py-1.5 rounded-full border border-theme">
+                    <i class="fas fa-palette text-[11px] accent-color"></i> Appearance <i class="fas fa-chevron-down text-[9px] opacity-60"></i>
+                </button>
+                <div id="theme-dropdown" class="hidden absolute left-0 mt-3 w-56 bg-neutral-950 border border-neutral-800 rounded-2xl shadow-2xl py-2 z-50 font-mono text-xs overflow-hidden">
+                    <!-- Injected dynamically via JavaScript -->
+                </div>
+            </div>
+        </div>
+        
+        <nav class="flex items-center gap-3">
+            <button onclick="switchView('main')" class="cursor-pointer text-xs uppercase tracking-widest text-muted hover:text-white transition px-4 py-2 rounded-full font-mono">Registry</button>
+            <button onclick="switchView('login')" id="loginNavBtn" class="cursor-pointer text-xs uppercase tracking-widest bg-white text-black font-bold px-5 py-2 rounded-full hover:bg-neutral-200 transition font-mono shadow-sm">Dashboard</button>
+            <button onclick="logout()" id="logoutNavBtn" class="hidden cursor-pointer text-xs uppercase tracking-widest bg-neutral-900/80 border border-neutral-800 text-red-400 px-5 py-2 rounded-full hover:bg-red-950/30 transition font-mono">Sign Out</button>
+        </nav>
+    </header>
+
+    <!-- CONTENT WRAPPER -->
+    <main class="container mx-auto px-6 py-16 flex-grow max-w-5xl">
+
+        <!-- VIEW 1: REGISTRY WINDOW (STRICT TWO PER ROW ON DESKTOP) -->
+        <section id="view-main" class="space-y-12">
+            <div class="flex flex-col space-y-2 border-b border-theme pb-8">
+                <h1 class="text-2xl font-bold tracking-tight text-white font-mono uppercase">System Registry</h1>
+                <p class="text-sm text-muted max-w-xl">Live monitoring status modules and instance integrity verifications updated by developers via Cloud Cluster.</p>
+            </div>
+
+            <!-- Explicit 2-Column Desktop Grid Allocation -->
+            <div id="exploits-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Syncing with Firebase Live Stream -->
+            </div>
+        </section>
+
+        <!-- VIEW 2: LOGIN GATEWAY -->
+        <section id="view-login" class="hidden max-w-md mx-auto my-12">
+            <div class="custom-card p-10 rounded-3xl shadow-2xl space-y-8">
+                <div class="space-y-2 text-center">
+                    <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center mx-auto border border-theme">
+                        <i class="fas fa-lock text-sm text-white"></i>
+                    </div>
+                    <h2 class="text-base font-bold uppercase tracking-wider font-mono pt-2">Secure Gateway</h2>
+                    <p class="text-xs text-muted">Provide authorization credentials to access cluster nodes.</p>
+                </div>
+                <div class="space-y-5 font-mono text-xs">
+                    <div class="space-y-2">
+                        <label class="block text-muted uppercase tracking-wider text-[10px]">Access Identifier</label>
+                        <input type="text" id="username" class="w-full custom-input rounded-xl px-4 py-3 text-white" placeholder="Username">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-muted uppercase tracking-wider text-[10px]">Security Key</label>
+                        <input type="password" id="password" class="w-full custom-input rounded-xl px-4 py-3 text-white" placeholder="••••••••">
+                    </div>
+                    <button onclick="handleLogin()" class="w-full cursor-pointer bg-white text-black font-bold py-3 rounded-xl hover:bg-neutral-200 transition uppercase tracking-wider text-xs shadow-md mt-2">Authenticate</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 3: ACTIVE CONSOLE PANEL -->
+        <section id="view-dashboard" class="hidden space-y-6">
+            <div class="custom-card p-6 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div class="font-mono">
+                    <h2 class="text-sm font-bold text-white uppercase">Control Panel &mdash; <span id="user-display" class="accent-color">Operator</span></h2>
+                    <p class="text-xs text-muted mt-0.5">Real-time dynamic injection payload pipeline control.</p>
+                </div>
+                <div class="border border-theme bg-black/20 px-4 py-1.5 rounded-full text-[10px] font-mono text-muted uppercase tracking-wider">
+                    Session token: <span id="badge-role" class="text-white font-bold">Validated</span>
+                </div>
+            </div>
+
+            <!-- Editor Module Section -->
+            <div id="dev-panel" class="custom-card p-8 rounded-3xl space-y-8 font-mono text-xs">
+                <h3 class="text-xs font-bold uppercase border-b border-theme pb-4 tracking-wider text-white flex items-center gap-2">
+                    <i class="fas fa-sliders-h mr-2 accent-color"></i> Instance Configuration Matrix
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-5">
+                        <div class="space-y-2">
+                            <label class="text-muted uppercase text-[10px] tracking-wide">Target Module Name</label>
+                            <input type="text" id="dash-name" disabled class="w-full custom-input opacity-30 cursor-not-allowed rounded-xl px-4 py-3">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-muted uppercase text-[10px] tracking-wide">Network Deployment Status</label>
+                            <select id="dash-status" class="w-full custom-input rounded-xl px-4 py-3 text-white cursor-pointer">
+                                <option value="updated">UPDATED (Operational)</option>
+                                <option value="upcoming">UPCOMING (Pending Alpha)</option>
+                                <option value="patching">PATCHING (Offline Sync)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="grid grid-cols-3 gap-3 bg-black/30 p-4 rounded-2xl border border-theme text-[10px] text-center">
+                            <label class="flex flex-col items-center gap-2 cursor-pointer p-2 hover:bg-neutral-900 rounded-xl transition">
+                                <span class="text-muted">Raknet</span>
+                                <input type="checkbox" id="dash-raknet" class="accent-bg bg-neutral-900 border-none rounded w-4 h-4 cursor-pointer">
+                            </label>
+                            <label class="flex flex-col items-center gap-2 cursor-pointer p-2 hover:bg-neutral-900 rounded-xl transition">
+                                <span class="text-muted">Decompiler</span>
+                                <input type="checkbox" id="dash-decompiler" class="accent-bg bg-neutral-900 border-none rounded w-4 h-4 cursor-pointer">
+                            </label>
+                            <label class="flex flex-col items-center gap-2 cursor-pointer p-2 hover:bg-neutral-900 rounded-xl transition">
+                                <span class="text-muted">Multi-Inst</span>
+                                <input type="checkbox" id="dash-multi" class="accent-bg bg-neutral-900 border-none rounded w-4 h-4 cursor-pointer">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="space-y-5">
+                        <div class="space-y-2">
+                            <label class="text-muted uppercase text-[10px] tracking-wide">Module Domain Endpoint (Website)</label>
+                            <input type="text" id="dash-web" class="w-full custom-input rounded-xl px-4 py-3">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-muted uppercase text-[10px] tracking-wide">Gateway Communication (Discord)</label>
+                            <input type="text" id="dash-discord" class="w-full custom-input rounded-xl px-4 py-3">
+                        </div>
+                        <div class="flex items-center justify-between bg-black/30 p-4 rounded-2xl border border-theme">
+                            <div>
+                                <span class="block font-bold text-white text-[11px]">Keyless Architecture</span>
+                                <span class="text-[10px] text-muted">Bypass remote server credentials</span>
+                            </div>
+                            <input type="checkbox" id="dash-keyless" class="accent-bg bg-neutral-900 border-none rounded w-5 h-5 cursor-pointer">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end pt-5 border-t border-theme">
+                    <button onclick="saveDevChanges()" class="cursor-pointer bg-white text-black font-bold px-8 py-3 rounded-xl shadow hover:bg-neutral-200 transition text-xs uppercase tracking-wider">Commit Node Changes</button>
+                </div>
+            </div>
+
+            <!-- ADMIN CENTRAL WORKSPACE -->
+            <div id="admin-panel" class="hidden space-y-6">
+                
+                <!-- 1. CREATION FORM -->
+                <div class="custom-card p-8 rounded-3xl space-y-6 font-mono text-xs border-dashed border-neutral-700">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2">
+                        <i class="fas fa-plus-circle text-emerald-400"></i> Register New Module Node
+                    </h3>
+                    <p class="text-[11px] text-muted -mt-3">Instantiate a brand new cloud system deployment and provision dedicated login credentials.</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                        <!-- Left Creation Col -->
+                        <div class="space-y-4">
+                            <div class="space-y-1.5">
+                                <label class="text-muted uppercase text-[10px]">New Module Name</label>
+                                <input type="text" id="create-name" class="w-full custom-input rounded-xl px-4 py-3 text-white" placeholder="e.g. Project Solar">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-muted uppercase text-[10px]">Initial State Deployment</label>
+                                <select id="create-status" class="w-full custom-input rounded-xl px-4 py-3 text-white">
+                                    <option value="updated">UPDATED</option>
+                                    <option value="upcoming">UPCOMING</option>
+                                    <option value="patching">PATCHING</option>
+                                </select>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2 bg-black/30 p-3 rounded-2xl border border-theme text-[10px] text-center">
+                                <label class="flex flex-col items-center gap-1.5 cursor-pointer">
+                                    <span class="text-muted">Raknet</span>
+                                    <input type="checkbox" id="create-raknet" class="accent-bg rounded w-4 h-4">
+                                </label>
+                                <label class="flex flex-col items-center gap-1.5 cursor-pointer">
+                                    <span class="text-muted">Decompiler</span>
+                                    <input type="checkbox" id="create-decompiler" class="accent-bg rounded w-4 h-4">
+                                </label>
+                                <label class="flex flex-col items-center gap-1.5 cursor-pointer">
+                                    <span class="text-muted">Multi-Inst</span>
+                                    <input type="checkbox" id="create-multi" class="accent-bg rounded w-4 h-4">
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-between bg-black/30 p-3 rounded-2xl border border-theme">
+                                <span class="font-bold text-white text-[11px]">Keyless Flag</span>
+                                <input type="checkbox" id="create-keyless" class="accent-bg rounded w-4 h-4">
+                            </div>
+                        </div>
+
+                        <!-- Right Creation Col -->
+                        <div class="space-y-4">
+                            <div class="space-y-1.5">
+                                <label class="text-muted uppercase text-[10px]">Target Link (Website)</label>
+                                <input type="text" id="create-web" class="w-full custom-input rounded-xl px-4 py-3 text-white" placeholder="https://">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-muted uppercase text-[10px]">Gateway Invitation (Discord)</label>
+                                <input type="text" id="create-discord" class="w-full custom-input rounded-xl px-4 py-3 text-white" placeholder="https://">
+                            </div>
+                            <div class="p-4 bg-white/5 rounded-2xl border border-theme space-y-3">
+                                <span class="block text-[10px] font-bold text-neutral-300 uppercase tracking-wide"><i class="fas fa-user-plus mr-1"></i> Developer Account Credentials</span>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input type="text" id="create-owner" class="w-full custom-input rounded-xl px-3 py-2 text-white" placeholder="Dev Username">
+                                    <input type="password" id="create-password" class="w-full custom-input rounded-xl px-3 py-2 text-white" placeholder="Dev Password">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-end pt-2">
+                        <button onclick="createNewExploit()" class="cursor-pointer bg-emerald-500 hover:bg-emerald-600 text-black font-bold px-8 py-3 rounded-xl transition text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/10">Deploy Module Node</button>
+                    </div>
+                </div>
+
+                <!-- 2. MODULE OVERVIEW LIST -->
+                <div class="custom-card p-8 rounded-3xl space-y-4 font-mono text-xs">
+                    <h3 class="text-xs font-bold uppercase border-b border-theme pb-4 tracking-wider text-white flex items-center gap-2">
+                        <i class="fas fa-shield-alt accent-color"></i> Root Cryptographic Governance
+                    </h3>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead>
+                                <tr class="border-b border-theme text-muted uppercase text-[10px] tracking-wider">
+                                    <th class="pb-3 font-normal">Active Module</th>
+                                    <th class="pb-3 font-normal">Developer Profile ID</th>
+                                    <th class="pb-3 font-normal">Network State</th>
+                                    <th class="pb-3 font-normal text-right">Actions Matrix</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-table-body" class="divide-y divide-neutral-900">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-theme text-center py-8 text-[11px] text-muted font-mono tracking-widest uppercase">
+        &copy; 2026 <span class="text-neutral-400">cheat.today</span> &mdash; Cryptographic Cluster Core
+    </footer>
+
+    <!-- ENGINE CODE CORE -->
+    <script>
+        // --- 1. FIREBASE CONFIGURATION (INTEGRATĂ CU SUCCES) ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyD2-wBRj4JXsrf93dPGTC8SIm09wpSL4mM",
+            authDomain: "cheattoday.firebaseapp.com",
+            projectId: "cheattoday",
+            storageBucket: "cheattoday.firebasestorage.app",
+            messagingSenderId: "93317930573",
+            appId: "1:93317930573:web:eedc193d8c546f7beb50c4",
+            measurementId: "G-WCF3TSWFLK"
+        };
+
+        // Initialize Firebase Setup
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        const themesList = [
+            { name: "Noir Absolute", main: "#050505", card: "#0b0b0c", input: "#111113", border: "#1c1c1f", text: "#ffffff", muted: "#71717a", accent: "#ffffff", rgb: "255,255,255" },
+            { name: "Slate Minimal", main: "#0f172a", card: "#1e293b", input: "#0f172a", border: "#334155", text: "#f8fafc", muted: "#94a3b8", accent: "#38bdf8", rgb: "56,189,248" },
+            { name: "Amethyst Night", main: "#090514", card: "#120b24", input: "#1a1033", border: "#251845", text: "#f5f3ff", muted: "#9333ea", accent: "#c084fc", rgb: "192,132,252" },
+            { name: "Deep Cyber", main: "#020c1b", card: "#0b192c", input: "#152a42", border: "#1e3e62", text: "#e2f1ff", muted: "#60a5fa", accent: "#00e5ff", rgb: "0,229,255" },
+            { name: "Terminal Matrix", main: "#020503", card: "#08120a", input: "#0d2112", border: "#16351d", text: "#f0fdf4", muted: "#22c55e", accent: "#4ade80", rgb: "74,222,128" }
+        ];
+
+        let exploitsData = [];
+        let currentUser = null;
+        let currentEditingExploitId = null;
+
+        // --- 2. FIREBASE REAL-TIME SYNC PIPELINE ---
+        db.collection("exploits").onSnapshot((snapshot) => {
+            exploitsData = [];
+            snapshot.forEach((doc) => {
+                exploitsData.push({ id: doc.id, ...doc.data() });
+            });
+            
+            if (exploitsData.length === 0) {
+                seedInitialData();
+            } else {
+                renderMainStatus();
+                if (currentUser === 'admin') {
+                    renderAdminTable();
+                }
+            }
+        });
+
+        function seedInitialData() {
+            const defaults = [
+                { name: "Lunar", status: "updated", raknet: true, decompiler: true, multiInstance: false, keyless: false, website: "https://lunar.cheat.today", discord: "https://discord.gg/lunar", certified: true, owner: "lunar_dev", password: "elasticNora666:bloxgen.netFRF" },
+                { name: "Project Vyrix", status: "upcoming", raknet: true, decompiler: true, multiInstance: true, keyless: true, website: "https://vyrix.cheat.today", discord: "https://discord.gg/vyrix", certified: false, owner: "vyrix_dev", password: "" }
+            ];
+            defaults.forEach(exp => {
+                const customId = exp.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
+                db.collection("exploits").doc(customId).set(exp);
+            });
+        }
+
+        function setTheme(index) {
+            const t = themesList[index];
+            if(!t) return;
+            const root = document.documentElement;
+            root.style.setProperty('--bg-main', t.main);
+            root.style.setProperty('--bg-card', t.card);
+            root.style.setProperty('--bg-input', t.input);
+            root.style.setProperty('--border', t.border);
+            root.style.setProperty('--text-main', t.text);
+            root.style.setProperty('--text-muted', t.muted);
+            root.style.setProperty('--accent', t.accent);
+            root.style.setProperty('--accent-rgb', t.rgb);
+            localStorage.setItem('cheat_today_theme_idx', index);
+            document.getElementById('theme-dropdown').classList.add('hidden');
+        }
+
+        function toggleThemeDropdown() {
+            document.getElementById('theme-dropdown').classList.toggle('hidden');
+        }
+
+        function buildThemeSelector() {
+            const container = document.getElementById('theme-dropdown');
+            container.innerHTML = '';
+            themesList.forEach((t, index) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left px-4 py-2.5 hover:bg-white/5 transition flex items-center justify-between cursor-pointer text-neutral-400 hover:text-white border-b border-neutral-900/40 last:border-none";
+                btn.onclick = () => setTheme(index);
+                btn.innerHTML = `<span>${t.name}</span><span class="w-2.5 h-2.5 rounded-full" style="background-color: ${t.accent}"></span>`;
+                container.appendChild(btn);
+            });
+        }
+
+        function renderMainStatus() {
+            const container = document.getElementById('exploits-container');
+            container.innerHTML = '';
+
+            exploitsData.forEach(exp => {
+                let statusBadge = '';
+                if(exp.status === 'updated') {
+                    statusBadge = `<span class="text-[10px] font-bold tracking-widest text-emerald-400 font-mono flex items-center gap-2 bg-emerald-500/5 px-3 py-1 border border-emerald-500/20 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> OPERATIONAL</span>`;
+                } else if(exp.status === 'upcoming') {
+                    statusBadge = `<span class="text-[10px] font-bold tracking-widest text-blue-400 font-mono flex items-center gap-2 bg-blue-500/5 px-3 py-1 border border-blue-500/20 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span> UPCOMING</span>`;
+                } else {
+                    statusBadge = `<span class="text-[10px] font-bold tracking-widest text-red-400 font-mono flex items-center gap-2 bg-red-500/5 px-3 py-1 border border-red-500/20 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-red-400"></span> PATCHING</span>`;
+                }
+
+                const certBadge = exp.certified ? 
+                    `<span class="text-[9px] font-bold tracking-widest border border-emerald-400/30 text-emerald-400 px-2.5 py-1 rounded-lg bg-emerald-400/5 font-mono flex items-center gap-1"><i class="fas fa-shield-alt text-[10px]"></i> CERTIFIED SAFETY</span>` : '';
+
+                const cardHtml = `
+                    <div class="custom-card rounded-2xl p-7 flex flex-col justify-between space-y-6 font-mono">
+                        <div class="flex justify-between items-start">
+                            <div class="space-y-4">
+                                <div class="flex flex-wrap items-center gap-2.5">
+                                    <h3 class="text-base font-bold tracking-tight text-white uppercase">${exp.name}</h3>
+                                    ${certBadge}
+                                </div>
+                                <div class="flex flex-wrap gap-2 text-[10px]">
+                                    <span class="px-3 py-1.5 rounded-xl bg-black/30 border border-theme text-muted flex items-center gap-2 ${exp.raknet ? 'text-white border-white/10' : 'opacity-20'}">
+                                        <i class="fas ${exp.raknet ? 'fa-check' : 'fa-minus'} text-[9px] accent-color"></i> Raknet
+                                    </span>
+                                    <span class="px-3 py-1.5 rounded-xl bg-black/30 border border-theme text-muted flex items-center gap-2 ${exp.decompiler ? 'text-white border-white/10' : 'opacity-20'}">
+                                        <i class="fas ${exp.decompiler ? 'fa-check' : 'fa-minus'} text-[9px] accent-color"></i> Decompiler
+                                    </span>
+                                    <span class="px-3 py-1.5 rounded-xl bg-black/30 border border-theme text-muted flex items-center gap-2 ${exp.multiInstance ? 'text-white border-white/10' : 'opacity-20'}">
+                                        <i class="fas ${exp.multiInstance ? 'fa-check' : 'fa-minus'} text-[9px] accent-color"></i> Multi-Instance
+                                    </span>
+                                </div>
+                            </div>
+                            <div>${statusBadge}</div>
+                        </div>
+
+                        <div class="flex items-center justify-between border-t border-theme pt-5 text-[10px]">
+                            <span class="text-muted uppercase">Framework Architecture: <strong class="text-white">${exp.keyless ? 'Keyless System' : 'Key Validation'}</strong></span>
+                            <button onclick="simulateSync('${exp.name}')" class="cursor-pointer text-neutral-400 hover:text-white transition flex items-center gap-1.5 text-[10px] uppercase tracking-wider bg-neutral-900/60 px-2.5 py-1 rounded-md border border-theme"><i class="fas fa-sync-alt text-[9px]"></i> Sync</button>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 text-xs tracking-wider uppercase font-bold pt-1">
+                            <a href="${exp.website}" target="_blank" class="border border-theme hover:border-neutral-700 bg-black/20 text-center py-3 rounded-xl transition flex items-center justify-center gap-2 text-white"><i class="fas fa-external-link-alt text-[10px] text-muted"></i> Website</a>
+                            <a href="${exp.discord}" target="_blank" class="border border-theme hover:border-neutral-700 bg-black/20 text-center py-3 rounded-xl transition flex items-center justify-center gap-2 text-white"><i class="fab fa-discord text-xs text-muted"></i> Communication</a>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += cardHtml;
+            });
+        }
+
+        // --- 3. CREATE EXPLOIT (FIREBASE WRITE) ---
+        function createNewExploit() {
+            if(currentUser !== 'admin') return;
+
+            const name = document.getElementById('create-name').value.trim();
+            const status = document.getElementById('create-status').value;
+            const raknet = document.getElementById('create-raknet').checked;
+            const decompiler = document.getElementById('create-decompiler').checked;
+            const multi = document.getElementById('create-multi').checked;
+            const keyless = document.getElementById('create-keyless').checked;
+            const web = document.getElementById('create-web').value.trim() || "#";
+            const discord = document.getElementById('create-discord').value.trim() || "#";
+            const owner = document.getElementById('create-owner').value.trim();
+            const password = document.getElementById('create-password').value;
+
+            if(!name || !owner || !password) {
+                alert("Creation Fault: Module Name, Developer Username, and Password fields are mandatory.");
+                return;
+            }
+
+            if(owner.toLowerCase() === 'admin' || exploitsData.some(e => e.owner.toLowerCase() === owner.toLowerCase())) {
+                alert("Creation Fault: Developer Account Identifier already allocated to another active node process.");
+                return;
+            }
+
+            const newId = name.toLowerCase().replace(/[^a-z0-9]/g, '_');
+
+            const newExploit = {
+                name: name,
+                status: status,
+                raknet: raknet,
+                decompiler: decompiler,
+                multiInstance: multi,
+                keyless: keyless,
+                website: web,
+                discord: discord,
+                certified: false,
+                owner: owner,
+                password: password
+            };
+
+            db.collection("exploits").doc(newId).set(newExploit).then(() => {
+                alert(`Cluster Deploy: Module Node [${name}] is now live for everyone!`);
+                document.getElementById('create-name').value = '';
+                document.getElementById('create-raknet').checked = false;
+                document.getElementById('create-decompiler').checked = false;
+                document.getElementById('create-multi').checked = false;
+                document.getElementById('create-keyless').checked = false;
+                document.getElementById('create-web').value = '';
+                document.getElementById('create-discord').value = '';
+                document.getElementById('create-owner').value = '';
+                document.getElementById('create-password').value = '';
+            }).catch(err => alert("Error writing to cloud database: " + err));
+        }
+
+        // --- 4. DELETE EXPLOIT (DOAR PENTRU ADMIN) ---
+        function deleteExploit(id, name) {
+            if(currentUser !== 'admin') {
+                alert("Unauthorized: Root privileges missing.");
+                return;
+            }
+
+            if(confirm(`Are you absolutely sure you want to completely PURGE [${name}] from the Cloud Cluster registry?`)) {
+                db.collection("exploits").doc(id).delete().then(() => {
+                    alert(`Node [${name}] successfully purged from network registry.`);
+                    if (currentEditingExploitId === id) {
+                        currentEditingExploitId = null;
+                        document.getElementById('dash-name').value = '';
+                    }
+                }).catch(err => alert("Purge Error: " + err));
+            }
+        }
+
+        function switchView(viewId) {
+            document.getElementById('view-main').classList.add('hidden');
+            document.getElementById('view-login').classList.add('hidden');
+            document.getElementById('view-dashboard').classList.add('hidden');
+
+            if(viewId === 'dashboard' && !currentUser) {
+                document.getElementById('view-login').classList.remove('hidden');
+                return;
+            }
+            document.getElementById('view-' + viewId).classList.remove('hidden');
+        }
+
+        function handleLogin() {
+            const u = document.getElementById('username').value.trim();
+            const p = document.getElementById('password').value;
+
+            if (u === 'admin' && p === 'admin123') {
+                currentUser = 'admin';
+            } else {
+                const matched = exploitsData.find(e => e.owner === u && e.password === p);
+                if (matched) {
+                    currentUser = u;
+                } else {
+                    alert('Security Check Denied: Credentials payload verification error.');
+                    return;
+                }
+            }
+
+            setupDashboardView();
+            switchView('dashboard');
+            document.getElementById('loginNavBtn').classList.add('hidden');
+            document.getElementById('logoutNavBtn').classList.remove('hidden');
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('loginNavBtn').classList.remove('hidden');
+            document.getElementById('logoutNavBtn').classList.add('hidden');
+            switchView('main');
+        }
+
+        function setupDashboardView() {
+            document.getElementById('user-display').innerText = currentUser === 'admin' ? 'Root Administrator (You)' : currentUser;
+            const badge = document.getElementById('badge-role');
+            const adminPanel = document.getElementById('admin-panel');
+
+            if(currentUser === 'admin') {
+                badge.innerText = "System Architect";
+                adminPanel.classList.remove('hidden');
+                if(exploitsData.length > 0) loadExploitIntoDevForm(exploitsData[0].id);
+                renderAdminTable();
+            } else {
+                badge.innerText = "Authorized Module Dev";
+                adminPanel.classList.add('hidden');
+                const userExploit = exploitsData.find(e => e.owner === currentUser);
+                if(userExploit) loadExploitIntoDevForm(userExploit.id);
+            }
+        }
+
+        function loadExploitIntoDevForm(id) {
+            currentEditingExploitId = id;
+            const exp = exploitsData.find(e => e.id === id);
+            if(!exp) return;
+            document.getElementById('dash-name').value = exp.name;
+            document.getElementById('dash-status').value = exp.status;
+            document.getElementById('dash-raknet').checked = exp.raknet;
+            document.getElementById('dash-decompiler').checked = exp.decompiler;
+            document.getElementById('dash-multi').checked = exp.multiInstance;
+            document.getElementById('dash-web').value = exp.website;
+            document.getElementById('dash-discord').value = exp.discord;
+            document.getElementById('dash-keyless').checked = exp.keyless;
+        }
+
+        function saveDevChanges() {
+            if(!currentEditingExploitId) return;
+            const exp = exploitsData.find(e => e.id === currentEditingExploitId);
+            if(!exp) return;
+
+            const updatedData = {
+                status: document.getElementById('dash-status').value,
+                raknet: document.getElementById('dash-raknet').checked,
+                decompiler: document.getElementById('dash-decompiler').checked,
+                multiInstance: document.getElementById('dash-multi').checked,
+                website: document.getElementById('dash-web').value,
+                discord: document.getElementById('dash-discord').value,
+                keyless: document.getElementById('dash-keyless').checked
+            };
+
+            db.collection("exploits").doc(currentEditingExploitId).update(updatedData).then(() => {
+                alert(`Cluster cloud node [${exp.name}] updated globally!`);
+            });
+        }
+
+        function renderAdminTable() {
+            const tbody = document.getElementById('admin-table-body');
+            tbody.innerHTML = '';
+
+            exploitsData.forEach(exp => {
+                const certBtn = exp.certified ? 
+                    `<button onclick="toggleCertificate('${exp.id}')" class="cursor-pointer text-[10px] bg-red-950/40 text-red-400 border border-red-900/40 px-2.5 py-1.5 rounded-xl hover:bg-red-900 hover:text-white transition font-mono">Revoke Cert</button>` :
+                    `<button onclick="toggleCertificate('${exp.id}')" class="cursor-pointer text-[10px] bg-white text-black font-bold px-2.5 py-1.5 rounded-xl hover:bg-neutral-200 transition font-mono shadow-sm">Give Cert</button>`;
+
+                const deleteBtn = `<button onclick="deleteExploit('${exp.id}', '${exp.name}')" class="cursor-pointer text-[10px] bg-neutral-900 hover:bg-red-950/60 border border-neutral-800 hover:border-red-900/50 text-neutral-400 hover:text-red-400 px-2.5 py-1.5 rounded-xl transition font-mono"><i class="fas fa-trash-alt"></i> Purge</button>`;
+
+                const tr = `
+                    <tr class="hover:bg-white/5 transition text-neutral-300">
+                        <td onclick="loadExploitIntoDevForm('${exp.id}')" class="py-4 font-bold text-white cursor-pointer hover:underline">${exp.name} <i class="fas fa-edit text-[9px] text-muted ml-1"></i></td>
+                        <td class="py-4 text-muted text-[11px] font-mono">${exp.owner}</td>
+                        <td class="py-4 uppercase text-[10px] tracking-wider font-mono">${exp.status}</td>
+                        <td class="py-4 text-right flex justify-end gap-2">${certBtn} ${deleteBtn}</td>
+                    </tr>
+                `;
+                tbody.innerHTML += tr;
+            });
+        }
+
+        function toggleCertificate(id) {
+            if(currentUser !== 'admin') return;
+            const exp = exploitsData.find(e => e.id === id);
+            if(exp) {
+                db.collection("exploits").doc(id).update({
+                    certified: !exp.certified
+                });
+            }
+        }
+
+        function simulateSync(name) {
+            alert(`Signal pipeline token for [${name}] executed via heartbeat.`);
+        }
+
+        buildThemeSelector();
+        const savedThemeIdx = localStorage.getItem('cheat_today_theme_idx');
+        setTheme(savedThemeIdx !== null ? parseInt(savedThemeIdx) : 0);
+
+        window.onclick = function(event) {
+            if (!event.target.matches('button') && !event.target.closest('.relative')) {
+                const dropdown = document.getElementById('theme-dropdown');
+                if (!dropdown.classList.contains('hidden')) dropdown.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
